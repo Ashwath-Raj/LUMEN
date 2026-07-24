@@ -51,6 +51,8 @@ from lumen.db.models import prediction as _prediction  # noqa: F401
 from lumen.db.models import event as _event            # noqa: F401
 from lumen.db.models import kb as _kb                  # noqa: F401
 from lumen.db.models import prompt as _prompt          # noqa: F401
+from lumen.db.models import eval as _eval              # noqa: F401
+from lumen.db.models import policy as _policy          # noqa: F401
 
 
 # ── small console helpers ──────────────────────────────────────────────────

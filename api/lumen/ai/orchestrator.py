@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
@@ -78,6 +78,13 @@ class AskOutcome:
     method: str                     # "quickml" | "deterministic_fallback" | "declined"
     dropped_ids: list[str]          # §16.2 step 9 casualties (§17.2 signal)
     latency_ms: float
+    # Additive run metadata the §17 evaluator consumes (intent accuracy,
+    # retrieval coverage, groundedness) without re-running the pipeline. New
+    # fields only — the Session 14 contract is unchanged. `intent` is None for
+    # a declined P9/individual-prediction request (classification is skipped).
+    intent: str | None = None
+    bundle_ids: list[str] = field(default_factory=list)
+    cited_ids: list[str] = field(default_factory=list)   # kept after step 9
 
 
 def _text_references_p9(text: str) -> str | None:
@@ -186,7 +193,8 @@ def ask(session: Session, question: str, *,
                              abstained=generation.abstained, now=now,
                              kept=kept, tools=tools)
     return _finish(session, insight, method, dropped, started,
-                   question, actor_id, now)
+                   question, actor_id, now, intent=intent,
+                   bundle_ids=bundle.ids, cited_ids=kept)
 
 
 def _fallback_generation(question: str, bundle: retriever.Bundle) -> envelope.Generation:
@@ -259,7 +267,8 @@ def _build_insight(session, question, *, headline, chips, kb_classifications,
 
 
 def _finish(session, insight, method, dropped, started, question,
-            actor_id, now) -> AskOutcome:
+            actor_id, now, *, intent=None, bundle_ids=None,
+            cited_ids=None) -> AskOutcome:
     save_insight(session, insight)
     latency_ms = (time.perf_counter() - started) * 1000.0
 
@@ -280,4 +289,6 @@ def _finish(session, insight, method, dropped, started, question,
     ))
     session.commit()
     return AskOutcome(insight=insight, method=method, dropped_ids=dropped,
-                      latency_ms=latency_ms)
+                      latency_ms=latency_ms, intent=intent,
+                      bundle_ids=sorted(bundle_ids) if bundle_ids else [],
+                      cited_ids=list(cited_ids) if cited_ids else [])

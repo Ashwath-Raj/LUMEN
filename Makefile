@@ -21,7 +21,7 @@ SYS_PY  := python
 PY      := $(shell [ -x "$(VENV_PY)" ] && echo "$(VENV_PY)" || echo "$(SYS_PY)")
 
 .DEFAULT_GOAL := help
-.PHONY: help init migrate revision downgrade backend test
+.PHONY: help init migrate revision downgrade backend eval test
 
 help:
 	@echo "LUMEN targets:"
@@ -30,6 +30,7 @@ help:
 	@echo "  make revision m=\"message\" - autogenerate a migration from the ORM models"
 	@echo "  make downgrade  - alembic downgrade -1"
 	@echo "  make backend    - run the FastAPI backend"
+	@echo "  make eval       - run the §17 AI evaluation suite and print a scorecard"
 	@echo "  make test       - run the test suite"
 
 # One command: a fresh developer runs `make init` and can inspect all tables in
@@ -48,6 +49,10 @@ downgrade:
 
 backend:
 	cd $(API_DIR) && "$(PY)" -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# §17.4: runs the golden + adversarial suite in-process and prints a scorecard.
+eval:
+	cd $(API_DIR) && "$(PY)" -m scripts.eval
 
 test:
 	cd $(API_DIR) && "$(PY)" -m pytest -q

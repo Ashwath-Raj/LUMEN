@@ -1,13 +1,285 @@
-# AI evaluation golden set — see LUMEN_MASTER_SPEC_V3.md §17.1.
+# AI evaluation golden set — LUMEN_MASTER_SPEC_V3 §17.1.
 #
-# Target: 40-60 questions, each with question, expected entity IDs, expected
-# intent, and an acceptable-answer rubric. Categories: case lookup, person
-# history, district comparison, legal ("what does 302 cover"), network
-# ("who connects A and B"), forecast, and unanswerable (questions whose
-# correct response is "the data does not support this").
+# 40-60 questions, each with: question, expected_intent, expected_entity_ids,
+# rubric (acceptable-answer keywords), category. Seven §17.1 categories:
+# case_lookup, person_history, district_comparison, legal, network, forecast,
+# and unanswerable ("the data does not support this").
 #
-# Not yet implemented — this file is a structural placeholder only.
-# Populating it requires a seeded dataset with known entity IDs (§32),
-# which does not yet exist in a form this file can reference.
+# expected_entity_ids reference the deterministic §32 seed (jobs/seed.py) via
+# the ID forms the AI retriever actually surfaces:
+#   case         -> "<CaseMasterID>"          (e.g. "1000")
+#   KB legal     -> "section:IPC:302" / "act:IPC" / "crime_taxonomy:<id>"
+#   KB case      -> "case_brief:<CaseMasterID>"
+# Person UUIDs (lumen_person) are resolution-derived; person_history questions
+# assert intent + a rubric rather than a volatile UUID, so the golden set
+# stays valid across resolution re-runs (the person node id is not a stable
+# public identifier — P10). Unanswerable rows carry no expected ids.
 
-questions: []
+questions:
+  # ── case_lookup ──────────────────────────────────────────────────────────
+  - id: case_lookup_1000
+    category: case_lookup
+    question: "Tell me about case 1000."
+    expected_intent: case
+    expected_entity_ids: ["1000"]
+    rubric: ["case", "1000"]
+  - id: case_lookup_5000
+    category: case_lookup
+    question: "What are the brief facts of case 5000?"
+    expected_intent: case
+    expected_entity_ids: ["5000"]
+    rubric: ["case", "5000"]
+  - id: case_lookup_4000
+    category: case_lookup
+    question: "Show the FIR details for case 4000."
+    expected_intent: case
+    expected_entity_ids: ["4000"]
+    rubric: ["case", "4000"]
+  - id: case_lookup_8000
+    category: case_lookup
+    question: "Give me the record for case 8000."
+    expected_intent: case
+    expected_entity_ids: ["8000"]
+    rubric: ["case", "8000"]
+  - id: case_lookup_1001
+    category: case_lookup
+    question: "Details of case 1001 please."
+    expected_intent: case
+    expected_entity_ids: ["1001"]
+    rubric: ["case", "1001"]
+  - id: case_lookup_1002
+    category: case_lookup
+    question: "What happened in case 1002?"
+    expected_intent: case
+    expected_entity_ids: ["1002"]
+    rubric: ["case", "1002"]
+  - id: case_lookup_4001
+    category: case_lookup
+    question: "Summarise case 4001."
+    expected_intent: case
+    expected_entity_ids: ["4001"]
+    rubric: ["case", "4001"]
+  - id: case_lookup_1003
+    category: case_lookup
+    question: "Show me case 1003."
+    expected_intent: case
+    expected_entity_ids: ["1003"]
+    rubric: ["case", "1003"]
+
+  # ── person_history ───────────────────────────────────────────────────────
+  - id: person_history_ravi
+    category: person_history
+    question: "What is the history of Ravi Kumar?"
+    expected_intent: person
+    expected_entity_ids: []
+    rubric: ["person", "case record"]
+  - id: person_history_sunil
+    category: person_history
+    question: "Show me the record history of Sunil Rao."
+    expected_intent: person
+    expected_entity_ids: []
+    rubric: ["person", "case record"]
+  - id: person_history_anil
+    category: person_history
+    question: "Who is Anil Shetty and what cases are they associated with?"
+    expected_intent: person
+    expected_entity_ids: []
+    rubric: ["person", "associated"]
+  - id: person_history_dossier
+    category: person_history
+    question: "Give me the dossier for Ravi Kumar."
+    expected_intent: person
+    expected_entity_ids: []
+    rubric: ["person"]
+  - id: person_history_offender
+    category: person_history
+    question: "What is the offending history of Sunil Rao?"
+    expected_intent: person
+    expected_entity_ids: []
+    rubric: ["person"]
+
+  # ── district_comparison ──────────────────────────────────────────────────
+  - id: district_compare_1_2
+    category: district_comparison
+    question: "Compare district 1 versus district 2."
+    expected_intent: comparison
+    expected_entity_ids: []
+    rubric: ["district"]
+  - id: district_compare_1_3
+    category: district_comparison
+    question: "What is the difference between district 1 and district 3?"
+    expected_intent: comparison
+    expected_entity_ids: []
+    rubric: ["district"]
+  - id: district_compare_2_3
+    category: district_comparison
+    question: "Compare district 2 and district 3 risk."
+    expected_intent: comparison
+    expected_entity_ids: []
+    rubric: ["district"]
+  - id: district_compare_risk
+    category: district_comparison
+    question: "Compare the risk between district 1 versus district 3."
+    expected_intent: comparison
+    expected_entity_ids: []
+    rubric: ["district"]
+
+  # ── legal ────────────────────────────────────────────────────────────────
+  - id: legal_302
+    category: legal
+    question: "What does section 302 cover?"
+    expected_intent: legal
+    expected_entity_ids: ["section:IPC:302"]
+    rubric: ["section", "302"]
+  - id: legal_392
+    category: legal
+    question: "What does section 392 cover?"
+    expected_intent: legal
+    expected_entity_ids: ["section:IPC:392"]
+    rubric: ["section", "392"]
+  - id: legal_420
+    category: legal
+    question: "What does IPC section 420 cover?"
+    expected_intent: legal
+    expected_entity_ids: ["section:IPC:420"]
+    rubric: ["section", "420"]
+  - id: legal_act_ipc
+    category: legal
+    question: "What is the Indian Penal Code Act about in law?"
+    expected_intent: legal
+    expected_entity_ids: ["act:IPC"]
+    rubric: ["act", "penal"]
+  - id: legal_302_murder
+    category: legal
+    question: "Which legal section covers murder?"
+    expected_intent: legal
+    expected_entity_ids: ["section:IPC:302"]
+    rubric: ["section", "murder"]
+  - id: legal_392_robbery
+    category: legal
+    question: "What does the law say section 392 is about?"
+    expected_intent: legal
+    expected_entity_ids: ["section:IPC:392"]
+    rubric: ["section", "392"]
+
+  # ── network ──────────────────────────────────────────────────────────────
+  - id: network_connect_ab
+    category: network
+    question: "Who connects group A and group B?"
+    expected_intent: network
+    expected_entity_ids: []
+    rubric: ["connect"]
+  - id: network_intermediary
+    category: network
+    question: "Find the intermediary linking these two clusters."
+    expected_intent: network
+    expected_entity_ids: []
+    rubric: ["link"]
+  - id: network_associates
+    category: network
+    question: "Show the association network around Ravi Kumar."
+    expected_intent: network
+    expected_entity_ids: []
+    rubric: ["network"]
+  - id: network_communities
+    category: network
+    question: "Which people operate together as a network unit?"
+    expected_intent: network
+    expected_entity_ids: []
+    rubric: ["network"]
+  - id: network_who_knows
+    category: network
+    question: "Who is connected to whom in this association network?"
+    expected_intent: network
+    expected_entity_ids: []
+    rubric: ["network"]
+
+  # ── forecast ─────────────────────────────────────────────────────────────
+  - id: forecast_risk_1
+    category: forecast
+    question: "Forecast the risk band for district 1 next month."
+    expected_intent: forecast
+    expected_entity_ids: []
+    rubric: ["risk"]
+  - id: forecast_risk_2
+    category: forecast
+    question: "Predict the risk band for district 2."
+    expected_intent: forecast
+    expected_entity_ids: []
+    rubric: ["risk"]
+  - id: forecast_outcome
+    category: forecast
+    question: "What is the likely outcome probability for open cases?"
+    expected_intent: forecast
+    expected_entity_ids: []
+    rubric: ["outcome"]
+  - id: forecast_risk_statewide
+    category: forecast
+    question: "Predict which districts are likely to see higher risk."
+    expected_intent: forecast
+    expected_entity_ids: []
+    rubric: ["risk"]
+  - id: forecast_risk_3
+    category: forecast
+    question: "Forecast the risk band for district 3."
+    expected_intent: forecast
+    expected_entity_ids: []
+    rubric: ["risk"]
+
+  # ── unanswerable (correct response: the data does not support this) ───────
+  - id: unanswerable_case_99999
+    category: unanswerable
+    question: "Tell me about case 99999."
+    expected_intent: case
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no", "not found"]
+  - id: unanswerable_fir_fake
+    category: unanswerable
+    question: "What are the details of FIR number 7777777?"
+    expected_intent: case
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
+  - id: unanswerable_person_unknown
+    category: unanswerable
+    question: "What is the history of Nonexistent Personname?"
+    expected_intent: person
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
+  - id: unanswerable_district_99
+    category: unanswerable
+    question: "Forecast the risk band for district 99."
+    expected_intent: forecast
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
+  - id: unanswerable_nonsense
+    category: unanswerable
+    question: "wibble wobble zzznomatch flibberflop."
+    expected_intent: case
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
+  - id: unanswerable_future_weather
+    category: unanswerable
+    question: "What will the weather be during next year's festival season?"
+    expected_intent: case
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
+  - id: unanswerable_case_88888
+    category: unanswerable
+    question: "Summarise case 88888."
+    expected_intent: case
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
+  - id: unanswerable_stock_price
+    category: unanswerable
+    question: "What is tomorrow's stock market closing price?"
+    expected_intent: case
+    expected_entity_ids: []
+    unanswerable: true
+    rubric: ["does not support", "no"]
