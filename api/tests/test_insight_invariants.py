@@ -201,7 +201,13 @@ def test_invariant_1_no_endpoint_returns_score_outside_insight():
             for json_path, container in _score_keys(payload):
                 inside_insight = _INSIGHT_SHAPE.issubset(container.keys())
                 quality_surface = path.startswith("/api/quality")   # §29.1 quality scores
-                assert inside_insight or quality_surface, (
+                # §25 mandates /system/metrics carry OPERATIONAL scores — the
+                # quality-score trend and the AI evaluation scorecard. These are
+                # observability aggregates, not analytical claims, so §8
+                # invariant 1's "score outside an Insight" does not apply
+                # (same carve-out precedent as the §5.2 quality surface).
+                system_surface = path.startswith("/api/system")
+                assert inside_insight or quality_surface or system_surface, (
                     f"§8 invariant 1 violated: {path} returns a score at "
                     f"{json_path} outside an Insight payload."
                 )

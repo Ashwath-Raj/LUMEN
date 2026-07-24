@@ -18,6 +18,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from lumen.api.routers.administration import router as administration_router
+from lumen.api.routers.audit import router as audit_router
 from lumen.api.routers.ai import router as ai_router
 from lumen.api.routers.analytics import router as analytics_router
 from lumen.api.routers.auth import router as auth_router
@@ -79,3 +80,4 @@ app.include_router(quality_router, prefix=settings.API_PREFIX)
 app.include_router(persons_router, prefix=settings.API_PREFIX)
 app.include_router(ai_router, prefix=settings.API_PREFIX)
 app.include_router(system_router, prefix=settings.API_PREFIX)
+app.include_router(audit_router, prefix=settings.API_PREFIX)
