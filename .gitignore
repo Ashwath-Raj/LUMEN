@@ -36,3 +36,4 @@ dist-ssr/
 # OS
 .DS_Store
 Thumbs.db
+catalyst-debug.log

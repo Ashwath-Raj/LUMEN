@@ -6,3 +6,4 @@ sqlalchemy
 psycopg[binary]
 alembic
 python-dotenv
+zcatalyst-sdk

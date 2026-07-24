@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { loginRequest, logoutRequest, fetchCurrentOperator } from '@/api/authService.js';
+import { redirectToLogin, logoutRequest, fetchCurrentOperator } from '@/api/authService.js';
 import { AuthContext } from './AuthContext.js';
 
 /**
  * Provides: { operator, isAuthenticated, isLoading, login, logout }
- * `operator` shape (from FastAPI /me): { id, name, role, clearance, unit }
+ * `operator` shape: { id, name, email } — from Catalyst Authentication
+ * (LUMEN_MASTER_SPEC_V3 §20.2), not a FastAPI-issued session.
  *
- * This is intentionally the only place that owns session state — pages and
- * components should consume it via useAuth(), never call authService directly.
+ * `login` is a full-page redirect to Catalyst's hosted login, not an
+ * API call — there is no credential form this app owns. This is
+ * intentionally the only place that owns session state — pages and
+ * components should consume it via useAuth(), never call authService
+ * directly.
  */
 export function AuthProvider({ children }) {
   const [operator, setOperator] = useState(null);
@@ -20,10 +24,8 @@ export function AuthProvider({ children }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const login = async (credentials) => {
-    const nextOperator = await loginRequest(credentials);
-    setOperator(nextOperator);
-    return nextOperator;
+  const login = () => {
+    redirectToLogin();
   };
 
   const logout = async () => {

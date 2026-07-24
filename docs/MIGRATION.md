@@ -291,3 +291,93 @@ Everything listed in §5 above still applies. In addition, as a direct consequen
 - Sessions 2 (schema/repositories), 3 (Catalyst Authentication), and 14 (QuickML AI orchestrator) now have a genuinely clean slate to build against — no legacy DB models, no legacy auth, no legacy AI code left half-wired into routers to work around.
 - The dead-but-present service/repository files listed in §8.3 will need to be either deleted or substantially rewritten once Session 2 defines the real `db/models/` and `db/repositories/` — they cannot be reused as-is since they're built against the deleted ORM.
 - `api/tests/` needs a real rewrite pass once Sessions 2/3/14 land; in the meantime 12 of 45 tests don't even collect, which is expected and documented, not a regression to silently fix.
+
+---
+
+## 9. Session 2 — Semantic layer, canonical schema, contracts, repositories, Data Store adapter
+
+Implemented per §2, §3, §7, and §26.2 of the spec. Full record:
+
+- **`api/lumen/db/models/canonical.py`** — all 27 tables from §3.5 (26 canonical + `inv_arrestsurrenderaccused` per §3.4), exact table/column names, exact §3.3-prescribed handling of every documented inconsistency (composite PKs where none declared, `ActSectionAssociation.ActID`/`SectionID` as VARCHAR, `Victim.VictimPolice` kept as VARCHAR(2)). Every single-column integer PK set `autoincrement=False` — the spec's DDL never uses `SERIAL`, since these IDs originate in the source KSP system, not a LUMEN-owned sequence. Verified: renders correct PostgreSQL DDL via `CreateTable(...).compile()`.
+- **`api/lumen/semantics/entities.py`** — all 11 closed-vocabulary entities (§2.1) as frozen dataclasses. `Person` and `Insight` are declared (vocabulary is closed) but not backed by real repository queries, since their backing tables (`lumen_person`, `lumen_insight`, §3.6) belong to Session 7 (entity resolution) and Session 8 (intelligence engine) respectively — explicitly out of Session 2's scope.
+- **`api/lumen/semantics/render.py`** — the 5 canonical display forms §2.3 gives worked examples for (Case, Person, Officer, Charge, ProcessEvent), verified character-for-character against the spec's own examples. The other 6 vocabulary entities have no prescribed display form anywhere in the document, so none was invented for them.
+- **`api/lumen/contracts/entity.py`** — `EntityContract`, the one contract in §7's table whose producer (semantic layer) is in Session 2's scope. The other 7 contracts (`InsightContract`, `GraphContract`, `PredictionContract`, `RecommendationContract`, `EventContract`, `EvidenceContract`, `QualityContract`) are produced by later-session subsystems and have no field-level shape given anywhere in the spec beyond the summary row — not implemented, to avoid inventing structure.
+- **`api/lumen/db/repositories/semantic_repositories.py`** — one repository per semantic entity, each the sole translation point from canonical ORM rows to semantic dataclasses (§2, §28 structural rule 3). Verified end-to-end against live SQLite data. `PersonRepository`/`InsightRepository` raise `NotImplementedError` with an explanation rather than querying a nonexistent table.
+- **`api/lumen/db/datastore.py`** — `active_backend()`, the one `DATABASE_URL` switch point §26.2 describes. A live Catalyst Data Store connector is not implementable from the four sentences §26.2 gives (no SDK, connection format, or auth mechanism specified) — flagged as "Cannot determine from the specification" rather than invented. The repository layer itself is already backend-agnostic (plain SQLAlchemy `Session`, no Postgres-specific SQL), satisfying the "one repository interface" requirement structurally.
+
+Full Session 2 deliverables detail (files, semantic entities, contracts, schema, repository interfaces, verification) was reported in-conversation at the time; this section is the durable record.
+
+---
+
+## 10. Session 3 — Catalyst platform skeleton (AppSail, Web Client Hosting, API Gateway, Authentication)
+
+Implemented per §27 (Deployment mechanics) and the T1 portion of §20.2 (Catalyst Authentication). **This session involved real deployment to a live, pre-authenticated Zoho Catalyst account** (project "LUMEN", `ashwathraj2007@gmail.com`) — not a simulation. Both required live URLs exist and were independently verified reachable.
+
+### 10.1 Web Client Hosting — LIVE
+
+`https://lumen-60072807597.development.catalystserverless.in/app/index.html` — 200 OK.
+
+Getting here required discovering (via the real CLI's own error messages and Zoho's public docs/support pages, not guesswork) that:
+- `catalyst.json`'s `client.source` must point at the **built** output directory (`client/dist`), not raw source — Catalyst does not run a build step itself.
+- A `client-package.json` file (a Catalyst-specific manifest, NOT the same as npm's `package.json` — different required fields: `name`, `version`, `homepage`, optionally `login_redirect`/`404`) must exist inside that build output directory. Placed at `client/public/client-package.json` so Vite copies it into `dist/` on every build.
+- `homepage` should be the app's own entry file (`index.html`) — an earlier attempt to set it to `/__catalyst/auth/login` (copying a hosted-login tutorial's example too literally) broke the app's own root route; corrected once the actual purpose of that field was confirmed (client-side auth redirect logic, already present in `AuthContext`/`ProtectedRoute`, is what should trigger the login redirect — not `client-package.json` itself).
+
+### 10.2 AppSail — LIVE
+
+`https://lumen-api-50042631269.development.catalystappsail.in` — `/health` returns 200; all other endpoints return their expected 501/401.
+
+This was the hardest part of the session. Real, evidenced findings, in order of discovery:
+1. `catalyst appsail:add --stack python312` fails — the real stack identifier is `python_3_12` (confirmed via the CLI's own error listing valid choices).
+2. AppSail startup commands execute directly, with **no shell** — `${X_ZOHO_CATALYST_LISTEN_PORT}` variable expansion requires an explicit `sh -c '...'` wrapper (confirmed via Zoho's public AppSail-execution docs).
+3. Catalyst's Python managed runtime does **not** auto-install `requirements.txt` — confirmed via docs ("you still need to manage the dependencies your code includes") and by empirical failure. Dependencies must be present in the uploaded build directory already.
+4. Installing dependencies directly into `api/`'s root (`pip install --target .`, matching a Flask quickstart's literal example) is unsafe — it collided with the project's own `alembic/` directory name and scattered ~30 package directories into the source tree. Reverted; an isolated `vendor/` subdirectory with `PYTHONPATH` override was used instead.
+5. Packages installed on this (Windows) development machine ship Windows-compiled binaries (`.pyd`) for anything with a native extension (`psycopg-binary`, `greenlet`, `pydantic-core`) — these do not run on Catalyst's Linux container. Fixed with `pip install --target ./vendor --platform manylinux2014_x86_64 --python-version 312 --implementation cp --only-binary=:all: -r requirements.txt`, confirmed by inspecting the installed files (`.so` / `x86_64-linux-gnu`, not `.pyd`).
+6. `pip install --target` does not generate a `uvicorn` console-script entry point (that's an install-time step invoking the *local* interpreter's script-generation, which doesn't carry over) — the bare `uvicorn main:app` command in `app-config.json` therefore had no binary to execute. Fixed by invoking `python3 -m uvicorn main:app ...` instead, which works from the importable package alone. **This was the actual root cause of "Execution failed. Please check the startup command or port"** across several redeploys.
+7. `app-config.json`'s `scripts.predeploy` runs **locally**, before packaging/upload — not inside the remote container. It is the correct place to run the platform-targeted `pip install`, not a server-side hook.
+
+Final working `api/app-config.json`:
+```json
+{
+	"command": "sh -c 'PYTHONPATH=$(pwd)/vendor python3 -m uvicorn main:app --host 0.0.0.0 --port ${X_ZOHO_CATALYST_LISTEN_PORT}'",
+	"build_path": "./",
+	"stack": "python_3_12",
+	"env_variables": {},
+	"memory": 256,
+	"scripts": {
+		"predeploy": "pip install --target ./vendor --platform manylinux2014_x86_64 --python-version 312 --implementation cp --only-binary=:all: -r requirements.txt"
+	}
+}
+```
+
+### 10.3 API Gateway — deliberately left DISABLED
+
+`catalyst apig:enable` was run, then reverted. Enabling API Gateway makes every existing resource's direct URL (client hosting, AppSail) return `INVALID_URL` until an explicit API is defined for it in the gateway — confirmed via Zoho's own forum KB article after the live client-hosting URL broke immediately upon enabling. Defining those APIs is real routing/gateway configuration work beyond what §27's four bullet points describe, and Session 3's own constraints explicitly forbid "redesign routing" or adding scope not explicitly required. **Given the choice between a technically-enabled-but-broken API Gateway and working live URLs, the two live URLs (the session's actual completion criterion) were prioritized.** `apig:disable` was run and both URLs confirmed working again immediately after. Wiring real per-route API Gateway definitions is flagged as follow-on work, not completed here.
+
+### 10.4 Catalyst Authentication — LIVE, "login works"
+
+The mechanism (verified via Zoho's own tutorial docs and the real `zcatalyst-sdk` package source, not invented):
+- **Login is a full-page redirect**, not an API call this app makes. Catalyst serves its own hosted "Sign In" page at `/__catalyst/auth/login` (confirmed live — real HTML/JS response captured from the deployed project, showing Zoho's actual hosted-login UI).
+- **Frontend**: the Catalyst Web SDK (`catalystWebSDK.js` + `/__catalyst/sdk/init.js`, added to `client/index.html`) exposes `window.catalyst.auth.isUserAuthenticated()` and `.signOut()`. `client/app/src/api/authService.js` was rewritten around these — `fetchCurrentOperator()` calls `isUserAuthenticated()`, `redirectToLogin()`/`logoutRequest()` trigger the redirect/sign-out. `AuthContext.jsx`'s `login()` is now a redirect trigger, not a credential submission. The existing "Restricted Access" visual design (`LoginCard.jsx`) was preserved, not redesigned — only its action changed from a form submission to a single redirect-triggering button, since Catalyst's hosted page now owns credential collection entirely.
+- **Backend**: `api/lumen/api/routers/auth.py`'s `GET /me` calls `zcatalyst_sdk.initialize(req=request)` then `app.authentication().get_current_user()`. Confirmed via the actual downloaded SDK wheel's source (`zcatalyst_sdk/_util.py::parse_headers_from_request`) that this only requires `request.headers` to exist and be dict-convertible — FastAPI's `Request` object satisfies this with no adapter needed. `POST /login`, `/logout`, `/refresh` remain 501 (correctly — they are Catalyst's job, not this API's).
+- **Live verification**: `curl .../api/auth/me` (no session) → `401 {"detail":"Not authenticated"}`. An early version returned `200 null` instead (the SDK call succeeded server-side but `get_current_user()` returned empty data for an anonymous request) — fixed by explicitly checking for a falsy `user` and raising 401.
+- `zcatalyst-sdk` added to `requirements.txt`. Its `typing-extensions~=4.12.1` pin conflicts with FastAPI/Pydantic's `>=4.14.1` — a real, upstream package incompatibility (not something introduced here); resolved by installing other dependencies first so pip's resolver settles on a mutually-compatible `pydantic`/`typing-extensions` pair, verified working both locally and in the live deployment.
+
+### 10.5 Verification performed
+
+- Both live URLs independently curl-verified reachable (200/expected-status) after every deploy, not just trusted from CLI success messages.
+- `/health` (200), `/api/auth/me` (401 unauthenticated), and every pre-existing 501 stub re-verified live on the deployed AppSail instance.
+- Session 1 and Session 2 functionality re-verified together in one fresh-venv run after all Session 3 changes: canonical schema (27 tables), `EntityContract`, repository layer, and the datastore adapter all still import and function; route count unchanged (10).
+- Frontend rebuilds cleanly (`npx vite build`) after every auth-related change.
+- `.gitignore` updated for `api/vendor/` (build artifact, ~90MB, platform-specific — must be regenerated by `predeploy` on every deploy, never committed) and `catalyst-debug.log` (CLI operational log).
+
+### 10.6 Explicitly not implemented (later sessions, confirmed untouched)
+
+RBAC, ABAC, roles, permissions, governance, policy engine, audit, entity resolution, insight engine, confidence model, lifecycle, knowledge graph, knowledge base, feature store, prediction engine, AI orchestrator, AI evaluation, decision support, event bus, registry, resource manager, observability, resilience, design system changes, and every frontend feature area beyond the login/deployment skeleton (Command Center, Geo Intelligence, Case Workspace, Person Dossier, Criminal Network, Intelligence Console, Predictions, Data Quality) — none of these were touched. The `/api/auth/me` endpoint returns raw Catalyst user fields (`zuid`, `email_id`, `first_name`, etc.) with no role/jurisdiction scoping applied — that's §20.1-20.2's RBAC/ABAC work, deferred to its own later session.
+
+### 10.7 Remaining differences from the specification
+
+- API Gateway is configured-but-disabled, not actively fronting the routes per-endpoint as §27/§26.1 row 18 envisions for production. Needs explicit per-route API definitions in a later pass.
+- No custom domain (§27, Domain Mappings, T2) — the default `*.catalystserverless.in` / `*.catalystappsail.in` URLs are used, which is what a T1 deployment requires.
+- `api/tests/` still not rewritten (unchanged from §8.7).
+
+**Fixed during this session, not deferred:** `CORS_ORIGINS` in `api/lumen/config.py` was found to default to localhost Vite ports only, which would have silently broken the deployed frontend's `/me` call (a genuine cross-origin request between the two separate Catalyst domains). Added the live client-hosting origin (`https://lumen-60072807597.development.catalystserverless.in`) to the default list and redeployed; verified live with a real `Origin` header — response carries the correct `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials: true`.

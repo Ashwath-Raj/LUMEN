@@ -1,9 +1,10 @@
 {
-  "spec_version": "1.0",
-  "stack": "python312",
-  "port": 9000,
-  "start_command": "uvicorn main:app --host 0.0.0.0 --port ${X_ZOHO_CATALYST_LISTEN_PORT}",
-  "memory": 512,
-  "timeout": 30,
-  "healthcheck_url": "/health"
+	"command": "sh -c 'PYTHONPATH=$(pwd)/vendor python3 -m uvicorn main:app --host 0.0.0.0 --port ${X_ZOHO_CATALYST_LISTEN_PORT}'",
+	"build_path": "./",
+	"stack": "python_3_12",
+	"env_variables": {},
+	"memory": 256,
+	"scripts": {
+		"predeploy": "pip install --target ./vendor --platform manylinux2014_x86_64 --python-version 312 --implementation cp --only-binary=:all: -r requirements.txt"
+	}
 }

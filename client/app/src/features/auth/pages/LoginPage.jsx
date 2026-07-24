@@ -1,28 +1,20 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/app/hooks/useAuth.js';
 import LoginCard from '@/features/auth/components/LoginCard.jsx';
 import { SYSTEM_BUILD } from '@/app/config/constants.js';
 
+/**
+ * Login is a redirect to Catalyst's hosted login page (LUMEN_MASTER_SPEC_V3
+ * §20.2, Catalyst Authentication — "replaces bespoke JWT entirely"), not a
+ * credential form this app submits. `LoginCard` below is kept as the entry
+ * point into that redirect so the existing "Restricted Access" visual design
+ * is preserved rather than replaced.
+ */
 export default function LoginPage() {
   const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleSubmit = async (credentials) => {
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    try {
-      await login(credentials);
-      navigate(location.state?.from?.pathname ?? '/dashboard', { replace: true });
-    } catch (err) {
-      setErrorMessage(err?.message || 'Authentication failed. Verify your credentials and retry.');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSubmit = () => {
+    login();
   };
 
   return (
@@ -39,7 +31,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <LoginCard onSubmit={handleSubmit} isSubmitting={isSubmitting} errorMessage={errorMessage} />
+      <LoginCard onSubmit={handleSubmit} />
 
       <div className="text-center font-mono text-[11px] text-neutral-400 tracking-wide">
         <p>{SYSTEM_BUILD}</p>

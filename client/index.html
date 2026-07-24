@@ -17,6 +17,9 @@
   </head>
   <body class="bg-surface-0 text-ink-primary antialiased">
     <div id="root"></div>
+    <!-- Catalyst Web SDK — required for window.catalyst.auth (LUMEN_MASTER_SPEC_V3 §20.2, Catalyst Authentication) -->
+    <script src="https://static.zohocdn.com/catalyst/sdk/js/4.0.0/catalystWebSDK.js"></script>
+    <script src="/__catalyst/sdk/init.js"></script>
     <script type="module" src="/app/src/main.jsx"></script>
   </body>
 </html>

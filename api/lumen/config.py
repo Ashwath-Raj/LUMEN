@@ -33,9 +33,12 @@ class Settings:
     SEED_RANDOM: int = int(os.getenv("SEED_RANDOM", "42"))
     DATASET_SCALE: str = os.getenv("DATASET_SCALE", "small").lower()
 
-    # CORS — the Vite dev server runs on 5173/5174
+    # CORS — localhost for the Vite dev server, plus the live Catalyst
+    # Web Client Hosting origin (LUMEN_MASTER_SPEC_V3 Session 3)
     CORS_ORIGINS: list[str] = os.getenv(
-        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,"
+        "https://lumen-60072807597.development.catalystserverless.in",
     ).split(",")
 
     # Database — psycopg3 dialect required (postgresql+psycopg://)
