@@ -104,7 +104,11 @@ def retrieve(session: Session, query: str, *, index: str,
         rows = in_scope
 
     # ── 3. rank what survived, never the reverse ───────────────────────────
-    scored = [(rank_fn(query, chunk.text), chunk, doc) for chunk, doc in rows]
+    # Rank over title + text: the document identity must count — §15.1's own
+    # stated use of the section corpus is the question "what does 302 cover?",
+    # where "302" appears in the title ("IPC 302"), not the description text.
+    scored = [(rank_fn(query, f"{doc.title} {chunk.text}"), chunk, doc)
+              for chunk, doc in rows]
     scored = [item for item in scored if item[0] > 0]
     scored.sort(key=lambda item: (-item[0], item[1].chunk_id))
     top = scored[:k]

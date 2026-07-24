@@ -38,6 +38,7 @@ from lumen.db.models import graph as _graph            # noqa: E402,F401  # §3.
 from lumen.db.models import prediction as _prediction  # noqa: E402,F401  # §3.6 prediction tables (Session 10)
 from lumen.db.models import event as _event            # noqa: E402,F401  # §3.6 lumen_event (Session 12)
 from lumen.db.models import kb as _kb                  # noqa: E402,F401  # §3.6 KB tables (Session 13)
+from lumen.db.models import prompt as _prompt          # noqa: E402,F401  # §3.6 prompt registry (Session 14)
 
 target_metadata = Base.metadata
 
