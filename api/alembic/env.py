@@ -42,6 +42,7 @@ from lumen.db.models import prompt as _prompt          # noqa: E402,F401  # §3.
 from lumen.db.models import eval as _eval              # noqa: E402,F401  # §3.6 lumen_ai_eval (Session 15)
 from lumen.db.models import policy as _policy          # noqa: E402,F401  # §3.6 audit / user_role (Session 16)
 from lumen.db.models import registry as _registry      # noqa: E402,F401  # §3.6 service registry (Session 17)
+from lumen.db.models import feature as _feature        # noqa: E402,F401  # §3.6 feature store (Session 19)
 
 target_metadata = Base.metadata
 
