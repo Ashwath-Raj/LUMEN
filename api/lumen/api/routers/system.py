@@ -26,6 +26,7 @@ from lumen.db.session import get_db
 from lumen.registry import models as model_registry
 from lumen.registry import prompts as prompt_registry
 from lumen.registry import services as service_registry
+from lumen.resilience import degradation
 
 router = APIRouter(prefix="/system", tags=["System"])
 
@@ -41,3 +42,14 @@ def get_registry(db: Session = Depends(get_db)) -> dict:
         "models": {"total": len(models), "items": models},
         "prompts": {"total": len(prompts), "items": prompts},
     }
+
+
+@router.get("/health")
+def get_health() -> dict:
+    """§24.2: the current degradation level + per-dependency state. In this
+    environment the external Catalyst dependencies have no live probe, so
+    every dependency reports "unknown" and the level resolves to L0 (absence
+    of a probe is not evidence of failure — §24.3 rule 5's no-fabrication
+    principle applied to health itself). A deployment injects real probes.
+    §25's rich metrics are observability (a later session) and are excluded."""
+    return degradation.health_report(probes={})
