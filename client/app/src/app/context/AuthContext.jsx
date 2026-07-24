@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { redirectToLogin, logoutRequest, fetchCurrentOperator } from '@/api/authService.js';
+import { loginRequest, logoutRequest, fetchCurrentOperator } from '@/api/authService.js';
 import { AuthContext } from './AuthContext.js';
 
 /**
@@ -7,8 +7,10 @@ import { AuthContext } from './AuthContext.js';
  * `operator` shape: { id, name, email } — from Catalyst Authentication
  * (LUMEN_MASTER_SPEC_V3 §20.2), not a FastAPI-issued session.
  *
- * `login` is a full-page redirect to Catalyst's hosted login, not an
- * API call — there is no credential form this app owns. This is
+ * `login` has two outcomes depending on the runtime (see authService.js):
+ * under the Catalyst runtime it initiates a full-page redirect to the
+ * hosted login (the promise resolves null and the page navigates away);
+ * under plain Vite dev it resolves the mock operator directly. This is
  * intentionally the only place that owns session state — pages and
  * components should consume it via useAuth(), never call authService
  * directly.
@@ -24,8 +26,10 @@ export function AuthProvider({ children }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const login = () => {
-    redirectToLogin();
+  const login = async () => {
+    const nextOperator = await loginRequest();
+    if (nextOperator) setOperator(nextOperator);
+    return nextOperator;
   };
 
   const logout = async () => {

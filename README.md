@@ -30,6 +30,30 @@ npm install
 npm run dev
 ```
 
+> **Two auth modes, selected automatically by build mode**
+> (`client/app/src/api/authService.js`):
+>
+> - **`npm run dev`** — a DEV build never touches Catalyst auth.
+>   `/__catalyst/*` doesn't exist under Vite (only `/api/*` is proxied,
+>   see `vite.config.js`), so "Continue to Sign-In" establishes a local
+>   **mock session** instead (`VITE_USE_MOCKS` unset or not `'false'`,
+>   the default) and lands on `/dashboard`. The `init.js` 404 in the dev
+>   console is expected noise: the CDN Web SDK loads but is deliberately
+>   ignored in DEV builds, because without `/__catalyst/sdk/init.js` it
+>   is an uninitialized husk that cannot authenticate.
+>
+> - **Real Catalyst login** — production builds (what `catalyst serve`
+>   and deployed hosting serve from `client/dist`) redirect to the real
+>   hosted login page:
+>
+>   ```bash
+>   cd client && npm run build      # produces client/dist, which catalyst.json points at
+>   cd .. && catalyst serve
+>   ```
+>
+>   Verified locally: `/__catalyst/auth/login` (200, real Zoho Sign-In
+>   page) and `/__catalyst/sdk/init.js` (200) both served by the emulator.
+
 **Backend** (`api/`):
 
 ```bash

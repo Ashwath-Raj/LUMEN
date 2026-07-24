@@ -1,3 +1,4 @@
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/app/hooks/useAuth.js';
 import LoginCard from '@/features/auth/components/LoginCard.jsx';
@@ -9,12 +10,23 @@ import { SYSTEM_BUILD } from '@/app/config/constants.js';
  * credential form this app submits. `LoginCard` below is kept as the entry
  * point into that redirect so the existing "Restricted Access" visual design
  * is preserved rather than replaced.
+ *
+ * Under plain Vite dev (no Catalyst SDK), login resolves a mock session
+ * locally instead of redirecting — in that case we navigate to the
+ * operator's intended destination ourselves. Under the Catalyst runtime
+ * the page navigates away to the hosted login before the navigate() call
+ * matters.
  */
 export default function LoginPage() {
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleSubmit = () => {
-    login();
+  const handleSubmit = async () => {
+    const operator = await login();
+    if (operator) {
+      navigate(location.state?.from?.pathname ?? '/dashboard', { replace: true });
+    }
   };
 
   return (

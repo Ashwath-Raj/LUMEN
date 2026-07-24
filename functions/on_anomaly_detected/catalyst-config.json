@@ -1,0 +1,11 @@
+{
+	"deployment": {
+		"name": "on_anomaly_detected",
+		"stack": "python_3_12",
+		"type": "event",
+		"env_variables": {}
+	},
+	"execution": {
+		"main": "main.py"
+	}
+}
