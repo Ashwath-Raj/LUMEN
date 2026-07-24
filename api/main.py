@@ -29,6 +29,7 @@ from lumen.api.routers.investigation import router as investigation_router
 from lumen.api.routers.operations import router as operations_router
 from lumen.api.routers.persons import router as persons_router
 from lumen.api.routers.quality import router as quality_router
+from lumen.api.routers.system import router as system_router
 from lumen.config import settings
 from lumen.api.exception_handlers import register_exception_handlers
 from lumen.observability.logging import logger
@@ -77,3 +78,4 @@ app.include_router(administration_router, prefix=settings.API_PREFIX)
 app.include_router(quality_router, prefix=settings.API_PREFIX)
 app.include_router(persons_router, prefix=settings.API_PREFIX)
 app.include_router(ai_router, prefix=settings.API_PREFIX)
+app.include_router(system_router, prefix=settings.API_PREFIX)
