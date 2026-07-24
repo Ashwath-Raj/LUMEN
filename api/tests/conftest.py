@@ -14,7 +14,11 @@ which is no longer required for the app to boot but is still required
 for any test that uses these fixtures.
 """
 import os
-os.environ["TESTING"] = "true"
+# Mark the process as a test run before settings load, so APP_ENV/TESTING are
+# consistent. Configuration itself comes from the single root .env via
+# lumen.config — no test-specific env loading here.
+os.environ.setdefault("TESTING", "true")
+os.environ.setdefault("APP_ENV", "test")
 
 import pytest
 from fastapi.testclient import TestClient
@@ -27,8 +31,11 @@ from lumen.config import settings
 
 # ── Transactional PostgreSQL engine ───────────────────────────────────────────
 
-# We use the existing DATABASE_URL (which should be PostgreSQL)
-test_engine = create_engine(settings.DATABASE_URL)
+# The Postgres-backed fixtures use TEST_DATABASE_URL when it is explicitly set,
+# otherwise DATABASE_URL — resolved centrally in lumen.config (no hidden
+# default). create_engine is lazy, so importing this module does not require a
+# live DB; the in-memory SQLite unit tests never touch this engine.
+test_engine = create_engine(settings.test_database_url)
 TestingSession = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 @pytest.fixture(scope="session")

@@ -23,12 +23,18 @@ if config.config_file_name is not None:
     except Exception:
         pass
 
-# The legacy ORM models (lumen.db.models.legacy_models) were deleted as part
-# of the cleanup ahead of LUMEN_MASTER_SPEC_V3's canonical DB schema rebuild
-# (Session 2). There is currently no models module to source metadata from,
-# so autogenerate support is disabled until Session 2 reintroduces a
-# canonical models module and this is pointed at its Base.metadata.
-target_metadata = None
+# Point autogenerate/migrations at the canonical ORM metadata. Importing these
+# model modules registers every table on `Base.metadata`:
+#   * canonical.py — the 27 official KSP tables + inv_arrestsurrenderaccused (§3.5/§3.4)
+#   * identity.py  — lumen_person / lumen_person_link / lumen_person_dispute (§3.6, §6)
+#   * quality.py   — lumen_quality_finding / lumen_quality_score (§3.6, §5)
+# Import for side effects (table registration); the modules need not be named.
+from lumen.db.session import Base  # noqa: E402
+from lumen.db.models import canonical as _canonical  # noqa: E402,F401
+from lumen.db.models import identity as _identity     # noqa: E402,F401
+from lumen.db.models import quality as _quality        # noqa: E402,F401
+
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:

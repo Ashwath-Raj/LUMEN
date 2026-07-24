@@ -1,24 +1,96 @@
-version: '3.8'
+# ============================================================================
+# LUMEN — local container stack.
+#
+# All configuration comes from the SINGLE canonical .env at the repository root
+# (the same file the backend and frontend read). Compose auto-loads ./.env for
+# ${VAR} interpolation, and the backend also mounts it via `env_file` so the
+# process sees the identical variables. No credentials are duplicated here —
+# Postgres and the backend DATABASE_URL derive from the same POSTGRES_* values.
+#
+# Bring up:   docker compose up --build
+# The graph service (Neo4j) is optional (ADR-001: graph runs in-process) and
+# lives behind the `graph` profile:   docker compose --profile graph up
+# ============================================================================
 
 services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: lumen
-      POSTGRES_PASSWORD: lumen_password
-      POSTGRES_DB: lumen_docker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lumen -d lumen_docker"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # One-shot schema bootstrap: verify PG, create the DB if absent, run Alembic
+  # migrations, verify tables — then exit. Runs INDEPENDENTLY of the backend, so
+  # the full schema is present and inspectable in DBeaver even if the backend is
+  # never started (e.g. `docker compose up db-init`).
+  db-init:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Override the long-running server entrypoint with the bootstrap script.
+    command: ["python", "-m", "scripts.init_db"]
+    restart: "no"
+
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    # Single canonical env file — the same one the developer edits.
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # Wait for the schema to be fully migrated before the API starts. The
+      # backend itself never creates schema.
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      # DATABASE_URL is composed from the shared POSTGRES_* values and points at
+      # the `postgres` service (not localhost) inside the compose network. This
+      # overrides the host-oriented DATABASE_URL from .env for the container.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # start.sh listens on this port; align it with the published/healthcheck port.
+      X_ZOHO_CATALYST_LISTEN_PORT: "8000"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+  # Optional legacy graph backend (ADR-001) — only started with --profile graph.
   neo4j:
     image: neo4j:5.26.0
+    profiles: ["graph"]
     environment:
-      NEO4J_AUTH: neo4j/lumen_graph_pass
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-neo4j_local}
       NEO4J_server_memory_pagecache_size: 512M
       NEO4J_server_memory_heap_initial__size: 512M
       NEO4J_server_memory_heap_max__size: 512M
@@ -30,44 +102,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    depends_on:
-      postgres:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql+psycopg://lumen:lumen_password@postgres:5432/lumen_docker
-      - NEO4J_URI=bolt://neo4j:7687
-      - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=lumen_graph_pass
-      - NEO4J_ENABLED=true
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - ACTIVE_AI_PROVIDER=gemini
-      - SECRET_KEY=docker_compose_secret_key_change_in_production
-      - CORS_ORIGINS=http://localhost:8080
-      - DEBUG=false
-    ports:
-      - "8000:8000"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    depends_on:
-      backend:
-        condition: service_healthy
-    ports:
-      - "8080:80"
 
 volumes:
   postgres_data:

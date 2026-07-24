@@ -26,6 +26,7 @@ from lumen.api.routers.health import router as health_router
 from lumen.api.routers.intelligence import router as intelligence_router
 from lumen.api.routers.investigation import router as investigation_router
 from lumen.api.routers.operations import router as operations_router
+from lumen.api.routers.persons import router as persons_router
 from lumen.api.routers.quality import router as quality_router
 from lumen.config import settings
 from lumen.api.exception_handlers import register_exception_handlers
@@ -55,7 +56,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,3 +74,4 @@ app.include_router(intelligence_router, prefix=settings.API_PREFIX)
 app.include_router(operations_router, prefix=settings.API_PREFIX)
 app.include_router(administration_router, prefix=settings.API_PREFIX)
 app.include_router(quality_router, prefix=settings.API_PREFIX)
+app.include_router(persons_router, prefix=settings.API_PREFIX)

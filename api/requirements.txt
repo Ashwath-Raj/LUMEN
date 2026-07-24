@@ -2,8 +2,11 @@ fastapi
 uvicorn
 python-multipart
 pytest
+httpx2
 sqlalchemy
+pydantic-settings
 psycopg[binary]
 alembic
-python-dotenv
 zcatalyst-sdk
+jellyfish
+Metaphone
