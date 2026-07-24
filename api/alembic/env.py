@@ -33,6 +33,11 @@ from lumen.db.session import Base  # noqa: E402
 from lumen.db.models import canonical as _canonical  # noqa: E402,F401
 from lumen.db.models import identity as _identity     # noqa: E402,F401
 from lumen.db.models import quality as _quality        # noqa: E402,F401
+from lumen.db.models import intelligence as _intel     # noqa: E402,F401  # §3.6 lumen_insight / lumen_model_registry (Session 8)
+from lumen.db.models import graph as _graph            # noqa: E402,F401  # §3.6 graph tables (Session 9)
+from lumen.db.models import prediction as _prediction  # noqa: E402,F401  # §3.6 prediction tables (Session 10)
+from lumen.db.models import event as _event            # noqa: E402,F401  # §3.6 lumen_event (Session 12)
+from lumen.db.models import kb as _kb                  # noqa: E402,F401  # §3.6 KB tables (Session 13)
 
 target_metadata = Base.metadata
 

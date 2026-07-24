@@ -10,3 +10,5 @@ alembic
 zcatalyst-sdk
 jellyfish
 Metaphone
+networkx
+scikit-learn

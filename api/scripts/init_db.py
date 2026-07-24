@@ -45,6 +45,11 @@ from lumen.db.session import Base, engine
 from lumen.db.models import canonical as _canonical  # noqa: F401
 from lumen.db.models import identity as _identity     # noqa: F401
 from lumen.db.models import quality as _quality        # noqa: F401
+from lumen.db.models import intelligence as _intel     # noqa: F401
+from lumen.db.models import graph as _graph            # noqa: F401
+from lumen.db.models import prediction as _prediction  # noqa: F401
+from lumen.db.models import event as _event            # noqa: F401
+from lumen.db.models import kb as _kb                  # noqa: F401
 
 
 # ── small console helpers ──────────────────────────────────────────────────
