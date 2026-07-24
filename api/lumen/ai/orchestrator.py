@@ -1,0 +1,1 @@
+"""AI orchestrator -- the 12-step pipeline. See LUMEN_MASTER_SPEC_V3 section 16.2. Not yet implemented. ai/services/ai_service.py is the prior implementation's monolithic facade, carried over as-is; decomposing it into orchestrator/intent/retriever/toolsel/envelope is Session 14 work."""

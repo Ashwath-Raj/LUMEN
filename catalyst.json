@@ -1,0 +1,30 @@
+{
+  "project_name": "LUMEN",
+  "client": {
+    "source": "client",
+    "build_directory": "dist",
+    "hosting_dir": "client/dist"
+  },
+  "functions": [
+    {
+      "name": "on_case_registered",
+      "source": "functions/on_case_registered",
+      "type": "eventflow"
+    },
+    {
+      "name": "on_anomaly_detected",
+      "source": "functions/on_anomaly_detected",
+      "type": "eventflow"
+    },
+    {
+      "name": "on_graph_projected",
+      "source": "functions/on_graph_projected",
+      "type": "eventflow"
+    },
+    {
+      "name": "on_quality_finding",
+      "source": "functions/on_quality_finding",
+      "type": "eventflow"
+    }
+  ]
+}

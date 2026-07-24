@@ -1,0 +1,1 @@
+"""Latency percentiles, cache hit rate, precompute timing, LLM latency/tokens, insight counts, fallback invocations, policy denials, quality trend, AI eval scorecard -- exposed at /api/v1/system/metrics. See LUMEN_MASTER_SPEC_V3 section 25. Not yet implemented."""

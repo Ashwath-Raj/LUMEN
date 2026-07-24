@@ -1,0 +1,13 @@
+# AI evaluation golden set — see LUMEN_MASTER_SPEC_V3.md §17.1.
+#
+# Target: 40-60 questions, each with question, expected entity IDs, expected
+# intent, and an acceptable-answer rubric. Categories: case lookup, person
+# history, district comparison, legal ("what does 302 cover"), network
+# ("who connects A and B"), forecast, and unanswerable (questions whose
+# correct response is "the data does not support this").
+#
+# Not yet implemented — this file is a structural placeholder only.
+# Populating it requires a seeded dataset with known entity IDs (§32),
+# which does not yet exist in a form this file can reference.
+
+questions: []

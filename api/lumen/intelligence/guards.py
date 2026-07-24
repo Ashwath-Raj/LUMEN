@@ -1,0 +1,1 @@
+"""P9 deny-list enforcement -- protected attributes never reach a model/prompt/chart/filter input. See LUMEN_MASTER_SPEC_V3 section 4.3 rule 6, 11. Not yet implemented. This module is CI-enforced per the spec once implemented."""

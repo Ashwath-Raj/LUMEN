@@ -1,0 +1,1 @@
+"""Shared FastAPI dependency helpers. See LUMEN_MASTER_SPEC_V3 section 28 repository structure. Not yet implemented -- prior implementation's dependency logic lives in identity/dependencies.py (get_current_operator, require_role), carried over as-is; consolidating into this file per the spec's naming is open."""

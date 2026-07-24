@@ -1,0 +1,1 @@
+"""The ONLY LLM call site (section 28 structural rule 5). Primary provider QuickML; Gemini is a declared dev-only fallback per section 26.3. See LUMEN_MASTER_SPEC_V3 section 16.1, ADR-005. Not yet implemented -- ai/providers/gemini_provider.py is the prior implementation's live Gemini client, carried over as-is; it is NOT wired behind this provider.py boundary yet."""

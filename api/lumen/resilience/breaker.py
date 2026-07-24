@@ -1,0 +1,1 @@
+"""Circuit breakers on QuickML and the graph backend (3 failures/60s -> open 120s -> half-open). See LUMEN_MASTER_SPEC_V3 section 24.3 rule 2. Not yet implemented. Prior implementation has an inline circuit breaker in ai/providers/gemini_provider.py; extracting it into a shared module is this file's job."""

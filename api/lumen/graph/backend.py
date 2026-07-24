@@ -1,0 +1,1 @@
+"""Graph backend selector -- the API must not know which backend answered. See LUMEN_MASTER_SPEC_V3 section 14.1, ADR-001. Not yet implemented. legacy_neo4j_service.py in this package is the prior live Neo4j integration, kept for reference only per the confirmed migration decision -- it is not wired to this backend selector."""

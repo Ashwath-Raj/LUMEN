@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "41374000000013055",
+      "name": "LUMEN",
+      "domain": {
+        "id": "50042631269",
+        "name": "lumen-60072807597.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60072807597",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

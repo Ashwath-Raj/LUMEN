@@ -1,0 +1,1 @@
+"""Response envelope assembly and evidence-ID verification (drop any ID not in the retrieved bundle). See LUMEN_MASTER_SPEC_V3 section 16.2 step 9 -- the most important line in the spec. Not yet implemented."""

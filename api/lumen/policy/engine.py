@@ -1,0 +1,1 @@
+"""authorize(user, action, resource) -> Decision. See LUMEN_MASTER_SPEC_V3 section 20.2. Not yet implemented. Prior implementation's require_role() in identity/dependencies.py is a simple allow-list carried over as-is, not yet a real policy engine."""

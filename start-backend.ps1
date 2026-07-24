@@ -3,9 +3,9 @@
 
 # Terminal 1 — FastAPI backend
 Write-Host "Starting FastAPI backend on http://localhost:8000" -ForegroundColor Cyan
-Set-Location backend
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+Set-Location api
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 # Terminal 2 — Vite frontend
-# Set-Location ..
+# Set-Location ../client
 # npm run dev
