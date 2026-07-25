@@ -3,7 +3,7 @@
  * on one screen, hours of work without leaving. This is an analyst workspace, not
  * a dashboard.
  *
- * Layout (Session 2 prompt): Header → Summary Strip → Main Workspace (tabbed:
+ * Layout : Header → Summary Strip → Main Workspace (tabbed:
  * Overview · Timeline · Insights · Evidence · Activity) → persistent Inspector
  * Panel. The active tab and the inspector selection both live in the URL (§C),
  * so the whole view is shareable and survives refresh, and browser-back works

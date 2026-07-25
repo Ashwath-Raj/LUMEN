@@ -2,15 +2,14 @@
  * `DataGrid` — the dense list primitive (arch §F, §D primitives). Sortable,
  * keyboard row navigation (↑↓ move, Enter opens, Space peeks), density toggle.
  * Virtualisation above 50 rows is a §G performance budget item added when a
- * feature session first needs it; the API is shaped for it now. Session 2 uses
+ * a surface first needs it; the API is shaped for it now. The registry uses
  * server-side pagination (≤ page size rows rendered), so virtualisation is not
  * yet required — tracked as debt.
  *
  * Sorting is CONTROLLED when `sort` + `onToggleSort` are provided (server-side
  * multi-sort for the Case Registry): the header shows the sort direction and
  * priority, and clicking a sortable header calls back rather than sorting
- * locally. Without those props the grid is display-only (Session 0 behaviour,
- * unchanged).
+ * locally. Without those props the grid is display-only .
  *
  * A row can be marked selected (`selectedId` + `rowKey`) so a surface with a
  * persistent inspector highlights the row whose entity is shown.

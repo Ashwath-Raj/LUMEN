@@ -6,9 +6,9 @@
  * block (§6.4), excluded from the metrics above.
  *
  * This surface consumes the REAL, DB-backed `GET /persons/{id}` — the one
- * Session-4 surface with genuine live data. The ego graph (`/persons/{id}/network`)
- * has no backend endpoint yet, so it degrades gracefully. Node/dispute actions
- * open the Inspector without leaving the dossier.
+ * surface with genuine live data, alongside the live ego graph
+ * (`/persons/{id}/network`). Node actions open the Inspector without leaving
+ * the dossier.
  */
 import { useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
@@ -91,7 +91,7 @@ export default function PersonDossierPage() {
                       isLoading={egoQuery.isLoading}
                       error={egoQuery.error}
                       onSelect={onSelectEntity}
-                      degradedMessage="Live ego-graph intelligence is unavailable. No relationships are shown."
+                      degradedMessage="The graph service is unavailable — no relationships are shown."
                       emptyMessage="No network connections resolved for this identity."
                     />
                   </Panel>

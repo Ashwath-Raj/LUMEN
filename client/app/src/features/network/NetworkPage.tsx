@@ -4,12 +4,11 @@
  * central GraphCanvas, and results as an InsightCard ABOVE the graph — "never a
  * bare graph" (§14.4), with the co-accusal trust caveat by default.
  *
- * The selected query lives in the URL (`?q=q2`, §C). Running a query calls
- * `/network/query/{q}` — which has no backend endpoint yet, so the graph shows
- * its empty state with a "live graph intelligence unavailable" banner and no
- * relationships are fabricated. Node selection opens the persistent Inspector.
+ * The selected query lives in the URL (`?q=q2`, §C); parameterised queries take
+ * their slots from `QueryParamsForm` and run against the live
+ * `GET /network/query/{q1..q10}`. Node selection opens the persistent Inspector.
  */
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useNetworkQuery } from "@/api";
@@ -19,18 +18,22 @@ import { InsightCard } from "@/components/insight";
 import { TrustBadge } from "@/components/trust";
 import type { EntityRef } from "@/components/entity";
 import type { GraphNode } from "@/types/graph";
+import type { NetworkQueryParams } from "@/api";
 import { useInspector } from "@/hooks/useInspector";
 import { writeParams } from "@/utils/urlState";
 import { cn } from "@/utils/cn";
 
 import { NAMED_QUERIES } from "./namedQueries";
+import { QueryParamsForm } from "./QueryParamsForm";
 
 export default function NetworkPage() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const selectedQ = params.get("q");
 
-  const query = useNetworkQuery(selectedQ);
+  const [draft, setDraft] = useState<NetworkQueryParams>({});
+  const [committed, setCommitted] = useState<NetworkQueryParams>({});
+  const query = useNetworkQuery(selectedQ, committed);
   const { selection, select, clear } = useInspector();
   const refCache = useRef<Map<string, EntityRef>>(new Map());
 
@@ -78,7 +81,11 @@ export default function NetworkPage() {
               <li key={nq.id}>
                 <button
                   type="button"
-                  onClick={() => setParams(writeParams(params, { q: nq.id }))}
+                  onClick={() => {
+                    setParams(writeParams(params, { q: nq.id }));
+                    setDraft({});
+                    setCommitted({});
+                  }}
                   aria-pressed={active}
                   className={cn(
                     "flex w-full flex-col items-start gap-0.5 rounded border px-3 py-2 text-left",
@@ -103,6 +110,14 @@ export default function NetworkPage() {
 
       {/* Result: insight above graph (§14.4) */}
       <div className="flex min-w-0 flex-1 flex-col">
+        {selectedQ ? (
+          <QueryParamsForm
+            queryId={selectedQ}
+            value={draft}
+            onChange={setDraft}
+            onRun={() => setCommitted(draft)}
+          />
+        ) : null}
         {insight ? (
           <div className="border-b border-line p-4">
             <InsightCard insight={insight} defaultExpanded />
@@ -126,7 +141,7 @@ export default function NetworkPage() {
                 ? "No results for this query."
                 : "Select a named query from the rail to explore the network."
             }
-            degradedMessage="Live graph intelligence is unavailable — the network endpoint is not yet served. No relationships are shown."
+            degradedMessage="The graph service is unavailable — no relationships are shown."
           />
         </div>
       </div>

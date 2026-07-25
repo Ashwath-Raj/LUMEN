@@ -9,11 +9,8 @@
  * `placeholderData: keepPreviousData` keeps the current page visible while the
  * next page/filter loads, so the grid doesn't flash empty on every keystroke.
  *
- * NOTE: the canonical `/cases` endpoint is not yet served (legacy
- * `/investigation/cases` returns HTTP 501). Wired to the canonical §29.1 path
- * against the transcribed `CaseList` shape; connects unchanged when the endpoint
- * lands, drift fails typecheck (arch §G). Until then it surfaces a typed
- * `ApiError` the `QueryBoundary` renders.
+ * Endpoint: `/investigation/cases` — live, serving the canonical §3.5 schema
+ * with §29.2 paging and the §29.1 filter set.
  */
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 

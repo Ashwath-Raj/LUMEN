@@ -8,4 +8,5 @@ export * from "./caseFilters";
 export * from "./geo";
 export * from "./graph";
 export * from "./person";
+export * from "./intelligence";
 export * from "./session";

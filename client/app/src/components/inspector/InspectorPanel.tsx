@@ -1,13 +1,13 @@
 /**
  * `InspectorPanel` (D10) — the persistent right panel that shows details for
  * whichever entity is selected, WITHOUT navigating away from the workspace
- * (arch D10; Session 2 prompt "The Inspector Panel must remain persistent…
+ * (arch D10 — the panel remains persistent;
  * No navigation away from workspace"). Docked mode (380px, §F) for the Case
  * Workspace; the overlay mode (map/list peeks) is a later session.
  *
  * Content is an `EntityRef` (D4 `EntityCard` full) for person/location/officer/
  * evidence/case, and an `InsightCard` for an insight — one component, six entity
- * types (Session 2 prompt). When nothing is selected it shows an instructional
+ * types . When nothing is selected it shows an instructional
  * empty state, never a blank panel.
  *
  * A11y: labelled complementary region; Esc clears the selection; the close

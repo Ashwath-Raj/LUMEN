@@ -2,7 +2,7 @@
  * Karnataka administrative reference — viewport constants + types for the
  * AUTHENTIC boundary GeoJSON served from `public/map-data/`.
  *
- * The geometry itself is NOT in this file anymore (Session 3 defect fix): the
+ * The geometry itself is NOT in this file anymore : the
  * hand-drawn rectangles are replaced by real Survey-of-India-derived district
  * boundaries (see `useKarnatakaBoundaries`). This module holds only the map
  * frame — centre, bounds, zoom limits — plus the feature property shape.

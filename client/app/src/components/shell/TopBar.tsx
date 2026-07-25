@@ -2,11 +2,9 @@
  * `TopBar` — shell top bar (arch §D shell): wordmark → /briefing, ⌘K global
  * search, scope indicator, `DegradationPill`, role badge, notification tray.
  *
- * Session 1 completes the bar: search and tray are now real interactions
- * (`GlobalSearch`, `NotificationTray`) with their resolution/live-data wired in
- * later sessions. Scope and role read from the session (§20 server scoping);
- * they stay neutral placeholders until the login session populates them. No
- * feature navigation beyond the §C set is added here.
+ * Search resolves through `GlobalSearch` (⌘K); the tray is `NotificationTray`.
+ * Scope and role read from the session (§20 server scoping) and render neutral
+ * until an identity is bound.
  */
 import { Link } from "react-router-dom";
 

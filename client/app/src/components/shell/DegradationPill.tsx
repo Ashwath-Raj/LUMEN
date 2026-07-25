@@ -2,8 +2,7 @@
  * `DegradationPill` (D13) — the §24.2 ladder in the shell. Reads the current
  * level from the session (which the envelope client publishes on every
  * response). L0 is neutral; ≥ L1 turns `--state-degraded` (arch §D13, §E:
- * "serving cached data from HH:MM"). Session 0 ships the pill; the per-
- * dependency detail popover is `/system` (E.10) work.
+ * "serving cached data from HH:MM"). Per-dependency detail lives on `/system`.
  */
 import { useSession } from "@/providers/sessionContext";
 import { cn } from "@/utils/cn";

@@ -149,43 +149,86 @@ export async function apiFetch<T>(
     });
   }
 
-  let envelope: Envelope<T> | null = null;
+  let payload: unknown = null;
   try {
-    envelope = (await response.json()) as Envelope<T>;
+    payload = await response.json();
   } catch {
-    envelope = null;
+    payload = null;
   }
 
-  // A well-formed envelope always drives behaviour — including its meta.
-  if (envelope && typeof envelope === "object" && "meta" in envelope) {
+  // ── §29 envelope path ────────────────────────────────────────────────
+  // A response is an envelope only if it carries the envelope's own keys.
+  // The CURRENT backend returns bare JSON dicts (plain FastAPI, no envelope
+  // yet); treating those as envelopes silently produced `data: undefined`.
+  // The envelope path stays fully wired for when the backend adopts §29.
+  const isEnvelope =
+    !!payload && typeof payload === "object" && "data" in payload && "meta" in payload;
+
+  if (isEnvelope) {
+    const envelope = payload as Envelope<T>;
     publishDegradation(envelope.meta);
+
+    if (!response.ok || envelope.error) {
+      const err = envelope.error;
+      throw new ApiError({
+        code: (err?.code as ApiErrorCode) ?? codeForStatus(response.status),
+        message: err?.message ?? messageForStatus(response.status),
+        traceId: err?.trace_id ?? "",
+        retryable: err?.retryable ?? isRetryableStatus(response.status),
+        status: response.status,
+      });
+    }
+    if (envelope.data === null) {
+      throw new ApiError({
+        code: "INTERNAL",
+        message: "Envelope contained no data",
+        traceId: envelope.meta?.trace_id ?? "",
+        retryable: false,
+        status: response.status,
+      });
+    }
+    return { data: envelope.data, meta: envelope.meta };
   }
 
-  if (!response.ok || !envelope || envelope.error) {
-    const err = envelope?.error;
+  // ── Bare-JSON path (current backend) ─────────────────────────────────
+  // Errors arrive as FastAPI `{detail}` / the exception handler's
+  // `{error: true, detail}` — surface `detail` and infer the §29.3 code from
+  // the HTTP status (501/502/503 → DEPENDENCY_UNAVAILABLE → DegradedState).
+  if (!response.ok) {
+    const detail =
+      payload && typeof payload === "object" && "detail" in payload
+        ? String((payload as { detail: unknown }).detail)
+        : null;
     throw new ApiError({
-      // Prefer the envelope's §29.3 code; otherwise infer from the HTTP status
-      // so a non-envelope failure (e.g. a FastAPI 501 `HTTPException`, or the
-      // dev proxy's 502) degrades gracefully instead of reading as a hard
-      // INTERNAL error. This is what lets an unimplemented endpoint render a
-      // calm "not available yet" state rather than a red failure panel.
-      code: (err?.code as ApiErrorCode) ?? codeForStatus(response.status),
-      message: err?.message ?? messageForStatus(response.status),
-      traceId: err?.trace_id ?? "",
-      retryable: err?.retryable ?? isRetryableStatus(response.status),
+      code: codeForStatus(response.status),
+      message: detail ?? messageForStatus(response.status),
+      traceId: "",
+      retryable: isRetryableStatus(response.status),
       status: response.status,
     });
   }
 
-  if (envelope.data === null) {
+  if (payload === null) {
     throw new ApiError({
       code: "INTERNAL",
-      message: "Envelope contained no data",
-      traceId: envelope.meta?.trace_id ?? "",
+      message: "Response contained no data",
+      traceId: "",
       retryable: false,
       status: response.status,
     });
   }
 
-  return { data: envelope.data, meta: envelope.meta };
+  // Bare payloads carry no meta — synthesize a neutral one (L0, uncached).
+  return { data: payload as T, meta: BARE_RESPONSE_META };
 }
+
+/** Neutral meta for bare (non-envelope) responses from the current backend. */
+const BARE_RESPONSE_META: EnvelopeMeta = {
+  generated_at: "",
+  method: "",
+  model_version: "",
+  contract_version: "",
+  cached: false,
+  degradation_level: "L0",
+  trace_id: "",
+};

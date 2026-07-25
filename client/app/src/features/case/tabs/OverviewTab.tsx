@@ -18,7 +18,7 @@ import type { ReactNode } from "react";
 import { useCaseActivity } from "@/api";
 import { EntityCard, type EntityRef } from "@/components/entity";
 import { QueryBoundary } from "@/components/states";
-import { QualityBadge, RiskBand } from "@/components/trust";
+import { RiskBand } from "@/components/trust";
 import { Panel } from "@/design/primitives";
 import type { CaseDetail } from "@/types/case";
 
@@ -76,19 +76,12 @@ export function OverviewTab({ detail, onSelect, selectedId }: OverviewTabProps) 
           </dl>
           <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
             {detail.risk_band ? (
-              <RiskBand
-                band={detail.risk_band}
-                score={detail.risk_score ?? undefined}
-                showScore
-              />
+              <RiskBand band={detail.risk_band} />
             ) : (
               <span className="text-caption text-ink-faint">
                 No risk insight yet
               </span>
             )}
-            {detail.quality_score !== null ? (
-              <QualityBadge score={detail.quality_score} />
-            ) : null}
           </div>
           {detail.brief_facts ? (
             <p className="border-t border-line pt-3 text-caption text-ink-muted">

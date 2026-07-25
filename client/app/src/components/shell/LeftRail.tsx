@@ -8,8 +8,7 @@
  * aria-current. Labels are hidden (not removed) when collapsed so the nav stays
  * screen-reader complete.
  *
- * Session 1 completes the rail (collapse + Alt keys); feature navigation beyond
- * the existing §C set is intentionally NOT added here.
+ * Navigation is exactly the §C rail set — no surface is added here.
  */
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";

@@ -5,8 +5,6 @@
  * because it is a distinct §29.1 endpoint with its own cache key (arch §G: one
  * endpoint → one hook → one key).
  *
- * NOTE: canonical endpoint pending backend; wired to the §29.1 path, drift fails
- * typecheck (arch §G).
  */
 import { useQuery } from "@tanstack/react-query";
 
@@ -16,19 +14,20 @@ import { rejectUnavailable } from "@/api/unavailable";
 import { queryKeys } from "@/api/queryKeys";
 import type { Insight } from "@/types/contracts";
 
-// No `/cases/{id}/insights` endpoint exists in the backend OpenAPI (the Insight
-// engine is a later backend session) → degraded state, no invented request.
+// Served by GET /intelligence/workbench?subject_type=case&subject_id={id} —
+// the persisted lumen_insight feed scoped to one case.
 export function useCaseInsights(id: string) {
   return useQuery({
     queryKey: queryKeys.caseInsights(id),
     enabled: !!id,
     retry: false,
-    queryFn: async ({ signal }) => {
+    queryFn: async ({ signal }): Promise<Insight[]> => {
       if (ENDPOINTS.caseInsights === null) rejectUnavailable("Case insights");
-      const { data } = await apiFetch<Insight[]>(ENDPOINTS.caseInsights, {
-        signal,
-      });
-      return data;
+      const { data } = await apiFetch<{ insights: Insight[] }>(
+        ENDPOINTS.caseInsights(id),
+        { signal },
+      );
+      return data.insights;
     },
   });
 }

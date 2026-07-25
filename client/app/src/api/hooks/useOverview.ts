@@ -5,11 +5,9 @@
  * Backs the Command Center (E.1) and Briefing (C.3). Returns the unwrapped,
  * typed `Overview` payload; no endpoint logic beyond wiring lives here.
  *
- * NOTE: the backend OpenAPI exposes NO `/overview` endpoint (the closest is the
- * legacy `/dashboard/summary` 501 stub, a different shape). Rather than request a
- * non-existent path, this hook resolves to the "not available yet" degraded
- * state (`ENDPOINTS.overview` is null); repoint it when the backend adds one.
- * (Not consumed by any Session 1–3 page yet — Command/Briefing are placeholders.)
+ * Endpoint: `/dashboard/summary` — live: §29.1 counts, district risk BANDS,
+ * trends and network figures. §8 invariant 1 keeps numeric scores inside
+ * Insights, so this payload carries bands and counts only.
  */
 import { useQuery } from "@tanstack/react-query";
 

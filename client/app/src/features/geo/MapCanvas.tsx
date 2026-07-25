@@ -3,7 +3,7 @@
  * CSS + the geo theme, so it is code-split into the geo chunk (arch §G). The
  * GeoPage lazy-loads it.
  *
- * ── Disappearing-overlay fix (Session 3) ─────────────────────────────────
+ * ── Disappearing-overlay fix  ─────────────────────────────────
  * Overlays are rendered with the DEFAULT SVG renderer (NOT `preferCanvas`): SVG
  * vector layers transform with the map via CSS at every zoom level and never
  * blank out, unlike the canvas renderer which cleared vectors during zoom. The

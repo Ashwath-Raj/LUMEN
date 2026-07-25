@@ -6,11 +6,12 @@
  * §31.1 hex as fallback — kept in sync with tokens.css.
  */
 import { token } from "@/design/tokens";
-import type { GraphEdgeKind, GraphNodeKind } from "@/types/graph";
+import type { GraphNodeKind } from "@/types/graph";
 
 /** Fixed glyphs — shared entity types reuse the §F entity glyphs. */
 export const NODE_GLYPH: Record<GraphNodeKind, string> = {
   person: "◉",
+  participant: "◍",
   case: "▣",
   vehicle: "⛢",
   organization: "⬢",
@@ -23,6 +24,7 @@ export const NODE_GLYPH: Record<GraphNodeKind, string> = {
 
 export const NODE_LABEL: Record<GraphNodeKind, string> = {
   person: "Person",
+  participant: "Participant",
   case: "Case",
   vehicle: "Vehicle",
   organization: "Organization",
@@ -36,6 +38,7 @@ export const NODE_LABEL: Record<GraphNodeKind, string> = {
 /** Token var per node kind (resolved at style-build time). */
 const NODE_TOKEN: Record<GraphNodeKind, string> = {
   person: "--signal",
+  participant: "--confidence-high",
   case: "--risk-high",
   vehicle: "--confidence-med",
   organization: "--risk-medium",
@@ -60,7 +63,10 @@ export function nodeColor(kind: GraphNodeKind): string {
   return token(v) || HEX_FALLBACK[v] || "#8ca3bf";
 }
 
-export const EDGE_LABEL: Record<GraphEdgeKind, string> = {
+export const EDGE_LABEL: Record<string, string> = {
+  CO_ACCUSED: "co-accused with",
+  SAME_IO_AS: "same investigating officer",
+  RESOLVES_TO: "resolves to",
   ASSOCIATED_WITH: "associated with",
   COMMUNICATED_WITH: "communicated with",
   OWNS: "owns",

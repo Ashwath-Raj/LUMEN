@@ -1,13 +1,16 @@
 /**
- * Insight lifecycle mutations (spec §29.1, §10, §17.5) — one hook per endpoint.
+ * Insight lifecycle mutations — LUMEN_MASTER_SPEC_V3 §29.1, §10, §17.5.
  *
- *   POST /insights/{id}/feedback  — officer feedback (§17.5), any analyst
- *   POST /insights/{id}/approve   — lifecycle approval (§10), role-gated (T2)
+ *   POST /insights/{id}/feedback  — §17.5 "thumbs up/down plus optional reason",
+ *                                   written to `lumen_event` as
+ *                                   `InsightFeedbackGiven`
+ *   POST /insights/{id}/approve   — §10 approval, recorded with approver and
+ *                                   timestamp; District SP / State Analyst only
  *
- * Both invalidate the insight feed on success so a card's lifecycle badge and
- * the feeds reflect the new state without a manual refetch. Role-gating of
- * approval is enforced by the UI (RequireRole / disabled action) AND by the
- * backend policy engine (§20) — the mutation itself never assumes authority.
+ * Approval legitimately REFUSES when §10's entry checks fail — most often the
+ * 0.35 confidence floor ("the insight stays `generated` and never surfaces").
+ * That refusal arrives as a 409 and is surfaced verbatim, because it is the
+ * specification working rather than a fault.
  */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -15,11 +18,11 @@ import { apiFetch } from "@/api/client";
 import { ENDPOINTS } from "@/api/endpoints";
 import { rejectUnavailable } from "@/api/unavailable";
 
-/** §17.5 officer feedback payload. */
+/** §17.5 officer feedback. */
 export interface InsightFeedback {
-  /** Directional signal — the minimum §17.5 records. */
-  rating: "useful" | "not_useful";
-  comment?: string;
+  rating: "up" | "down";
+  reason?: string;
+  actor_id?: string;
 }
 
 export function useInsightFeedback(insightId: string) {
@@ -27,7 +30,7 @@ export function useInsightFeedback(insightId: string) {
   return useMutation({
     mutationFn: async (feedback: InsightFeedback) => {
       if (ENDPOINTS.insightFeedback === null) rejectUnavailable("Insight feedback");
-      const { data } = await apiFetch<{ ok: true }>(
+      const { data } = await apiFetch<{ event_id: string }>(
         ENDPOINTS.insightFeedback(insightId),
         { method: "POST", body: feedback },
       );
@@ -39,14 +42,19 @@ export function useInsightFeedback(insightId: string) {
   });
 }
 
+export interface ApproveRequest {
+  approver: string;
+  role: string;
+}
+
 export function useInsightApproval(insightId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (request: ApproveRequest) => {
       if (ENDPOINTS.insightApprove === null) rejectUnavailable("Insight approval");
-      const { data } = await apiFetch<{ ok: true }>(
+      const { data } = await apiFetch<{ lifecycle_state: string }>(
         ENDPOINTS.insightApprove(insightId),
-        { method: "POST" },
+        { method: "POST", body: request },
       );
       return data;
     },

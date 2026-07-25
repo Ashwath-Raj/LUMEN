@@ -3,8 +3,6 @@
  * §30.4 "derived lifecycle with gaps and district benchmarks"), one typed hook.
  * Returns `CaseTimeline` (ProcessEvents + district-median reference).
  *
- * NOTE: canonical endpoint pending backend; wired to the §29.1 path, drift fails
- * typecheck (arch §G).
  */
 import { useQuery } from "@tanstack/react-query";
 
@@ -14,9 +12,8 @@ import { rejectUnavailable } from "@/api/unavailable";
 import { queryKeys } from "@/api/queryKeys";
 import type { CaseTimeline } from "@/types/timeline";
 
-// No `/cases/{id}/timeline` endpoint exists in the backend OpenAPI, so this hook
-// resolves to the "not available yet" degraded state rather than requesting a
-// non-existent path (repoint the ENDPOINTS entry when the backend adds it).
+// Served by GET /investigation/cases/{id}/timeline (§2.1 ProcessEvents with
+// §2.3 labels + the district-median reference).
 export function useCaseTimeline(id: string) {
   return useQuery({
     queryKey: queryKeys.caseTimeline(id),
@@ -24,9 +21,10 @@ export function useCaseTimeline(id: string) {
     retry: false,
     queryFn: async ({ signal }) => {
       if (ENDPOINTS.caseTimeline === null) rejectUnavailable("Case timeline");
-      const { data } = await apiFetch<CaseTimeline>(ENDPOINTS.caseTimeline, {
-        signal,
-      });
+      const { data } = await apiFetch<CaseTimeline>(
+        ENDPOINTS.caseTimeline(id),
+        { signal },
+      );
       return data;
     },
   });

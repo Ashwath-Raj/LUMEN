@@ -8,9 +8,9 @@
  * `ProcessEvent` semantic dataclasses (`lumen/semantics/entities.py`, §2.1), the
  * §2.3 canonical display forms (`lumen/semantics/render.py`), and the §3.5
  * schema. The spec deliberately leaves the case aggregate as an open `dict`
- * (`EntityContract.data`, §7) — so, exactly as Sessions 0/1 did for `/overview`,
- * this file transcribes what §29.1 (`GET /cases`, `/cases/{id}`) must return to
- * render §2.3 and marks it for generation once a field-level contract lands.
+ * (`EntityContract.data`, §7); this file transcribes what the live
+ * `/investigation/cases` surfaces return, ready for generation once a
+ * field-level contract lands.
  *
  * The semantic entities carry lookup IDs (crime head, gravity, status, station,
  * officer); §2.3 renders their NAMES via repository joins. The API's job is to
@@ -86,11 +86,9 @@ export interface CaseListItem {
   officer_name: string | null;
   crime_registered_date: string | null;
   updated_at: string | null;
-  /** Derived (§5.2/§9) — null when the case has no insight yet. */
+  /** Derived band (§9). §8 invariant 1 keeps the NUMERIC score inside the
+   *  case's Insights — read them from the insight feed, not from this row. */
   risk_band: RiskBand | null;
-  risk_score: number | null;
-  confidence: number | null;
-  quality_score: number | null;
   /** Count of insights attached (E.3 "insight count" column affordance). */
   insight_count: number;
   classification: Classification;
@@ -133,7 +131,7 @@ export interface CaseCourt {
 /**
  * `GET /cases/{id}` aggregate (§29.1 "one aggregate call renders header +
  * entities"). Header fields + the entity columns the Overview tab shows. Graph /
- * geo payloads are separate endpoints and NOT included (Session 4/3).
+ * geo payloads are separate endpoints and NOT included .
  */
 export interface CaseDetail {
   case_master_id: string;
@@ -161,9 +159,6 @@ export interface CaseDetail {
   latitude: number | null;
   longitude: number | null;
 
-  /** Derived summary (§5.2/§9) — null when no insight exists yet. */
+  /** Derived band (§9); numerics live in the case's Insights (§8 invariant 1). */
   risk_band: RiskBand | null;
-  risk_score: number | null;
-  confidence: number | null;
-  quality_score: number | null;
 }

@@ -7,9 +7,8 @@
  * (the row variant), and shows the restricted state where masked (§4.2).
  *
  * Grouped by entity type so a large evidence set stays navigable. Restriction is
- * a placeholder predicate for Session 2 (role×classification masking is applied
- * by the backend's scoped response and demoed with role-switch in Session 6);
- * the UI already renders the masked state faithfully when told to.
+ * an optional predicate; role×classification masking is applied
+ * server-side (§4.2) and the UI renders the masked state faithfully.
  */
 import { useMemo } from "react";
 

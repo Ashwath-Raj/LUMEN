@@ -18,12 +18,11 @@ import type { RiskBand } from "@/design/tokens";
 export interface GeoDistrict {
   district_id: string;
   district_name: string;
-  /** Derived risk band + score (§13 district_risk). */
+  /** Derived risk band (§13 district_risk). §8 invariant 1 keeps the numeric
+   *  score inside the district's risk Insight; §5.2 quality numerics come from
+   *  `/quality/scores`. */
   risk_band: RiskBand;
-  risk_score: number;
   case_count: number;
-  /** §5.2 quality score for the district scope (may be null). */
-  quality_score: number | null;
 }
 
 /** A DBSCAN hotspot cluster (§13 hotspots · §30.3 density). */

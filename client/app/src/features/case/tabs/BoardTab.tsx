@@ -4,10 +4,9 @@
  * (Cytoscape, D8). Node selection opens the persistent Inspector; double-click
  * drills into an entity.
  *
- * Backed by `GET /cases/{id}/graph` — no backend endpoint yet, so the board
- * shows its empty state with the "live graph intelligence unavailable" banner
- * and fabricates nothing. Expanding a node (1-hop) is wired to the same endpoint
- * and degrades identically until it lands.
+ * Backed by the live `GET /cases/{id}/graph`: the case, its accused
+ * participants, the investigating officer, and the persons those accused
+ * resolve to — read from canonical rows plus the persisted projection.
  */
 import { useCaseGraph } from "@/api";
 import { GraphSurface } from "@/components/graph";
@@ -33,7 +32,7 @@ export function BoardTab({ caseId, onSelect, onOpen, selectedId }: BoardTabProps
         onOpen={onOpen}
         selectedId={selectedId}
         emptyMessage="No investigation-board relationships for this case yet."
-        degradedMessage="Live graph intelligence is unavailable — the investigation board populates when the graph endpoint is served. No relationships are fabricated."
+        degradedMessage="The graph service is unavailable — the board populates when it is reachable."
       />
     </div>
   );

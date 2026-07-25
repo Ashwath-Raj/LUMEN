@@ -8,8 +8,8 @@
  * falls back to free-text filter entry (see the FilterBar), so filtering by URL
  * still works. `staleTime` is generous — lookups change rarely.
  *
- * NOTE: endpoint pending backend; wired to a canonical-shaped path, drift fails
- * typecheck (arch §G).
+ * NOTE: no lookups/facets endpoint exists; the FilterBar falls back to
+ * free-text entry, which still round-trips through the URL.
  */
 import { useQuery } from "@tanstack/react-query";
 

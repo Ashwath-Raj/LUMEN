@@ -35,10 +35,9 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Return to where the analyst was headed, else the Case Registry — the
-  // working worklist and text entry point (E.3). The Briefing (§C.3) becomes
-  // the post-login default when it is built in Session 6.
-  const dest = (location.state as FromState | null)?.from?.pathname ?? "/cases";
+  // Return to where the analyst was headed, else the Command Center — the
+  // operational landing page (E.1).
+  const dest = (location.state as FromState | null)?.from?.pathname ?? "/command";
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();

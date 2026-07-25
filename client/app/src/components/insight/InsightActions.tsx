@@ -39,7 +39,7 @@ export function InsightActions({
   insightId,
   lifecycleState,
 }: InsightActionsProps) {
-  const { role } = useSession();
+  const { role, operator } = useSession();
   const feedback = useInsightFeedback(insightId);
   const approval = useInsightApproval(insightId);
 
@@ -57,25 +57,30 @@ export function InsightActions({
       <FeedbackButton
         label="Useful"
         icon={<ThumbsUp size={14} strokeWidth={1.5} aria-hidden />}
-        active={feedback.data !== undefined && feedback.variables?.rating === "useful"}
-        pending={feedback.isPending && feedback.variables?.rating === "useful"}
-        onClick={() => feedback.mutate({ rating: "useful" })}
+        active={feedback.data !== undefined && feedback.variables?.rating === "up"}
+        pending={feedback.isPending && feedback.variables?.rating === "up"}
+        onClick={() => feedback.mutate({ rating: "up" })}
       />
       <FeedbackButton
         label="Not useful"
         icon={<ThumbsDown size={14} strokeWidth={1.5} aria-hidden />}
         active={
-          feedback.data !== undefined && feedback.variables?.rating === "not_useful"
+          feedback.data !== undefined && feedback.variables?.rating === "down"
         }
-        pending={feedback.isPending && feedback.variables?.rating === "not_useful"}
-        onClick={() => feedback.mutate({ rating: "not_useful" })}
+        pending={feedback.isPending && feedback.variables?.rating === "down"}
+        onClick={() => feedback.mutate({ rating: "down" })}
       />
 
       {canApprove ? (
         <Button
           variant="primary"
           className="ml-auto"
-          onClick={() => approval.mutate()}
+          onClick={() =>
+            approval.mutate({
+              approver: operator?.name ?? operator?.id ?? "unknown",
+              role: role ?? "station_officer",
+            })
+          }
           disabled={approval.isPending}
         >
           {approval.isPending ? (
@@ -93,8 +98,16 @@ export function InsightActions({
         </span>
       ) : null}
       {approval.isError ? (
-        <span className="w-full text-caption text-risk-high">
-          Approval failed — {approval.error.message}
+        // A §10 entry-check refusal (e.g. the 0.35 confidence floor) is the
+        // specification working — it is reported as a governance notice with
+        // the reason, not as a failure.
+        <span className="w-full text-caption text-degraded">
+          Not approvable — {approval.error.message}
+        </span>
+      ) : null}
+      {approval.isSuccess ? (
+        <span className="w-full text-caption text-confidence-high">
+          Approved and recorded (§10).
         </span>
       ) : null}
     </div>

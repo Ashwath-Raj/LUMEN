@@ -150,22 +150,22 @@ GRAVITY = {1: "Heinous", 2: "Non-Heinous"}
 
 
 def _seed_reference_data(session: Session) -> None:
+    # STAGED FLUSHES (FK-ordering fix): with FK-only models and no
+    # relationship() config, the unit of work flushes unrelated mappers in
+    # table-name order — "District" sorts before "State" and violates the FK
+    # under PostgreSQL (SQLite unit tests don't enforce FKs, so they never saw
+    # it). Each dependency level is therefore flushed before the next level
+    # references it. Seed-time cost is negligible.
+
+    # Level 0 — no intra-seed FK dependencies.
     session.add(m.State(StateID=STATE_ID, StateName="Karnataka", Active=True))
-    for did, (name, _) in DISTRICTS.items():
-        session.add(m.District(DistrictID=did, DistrictName=name, StateID=STATE_ID, Active=True))
     session.add(m.UnitType(UnitTypeID=1, UnitTypeName="Police Station", Active=True))
-    for uid, (name, did) in UNITS.items():
-        session.add(m.Unit(UnitID=uid, UnitName=name, TypeID=1, StateID=STATE_ID, DistrictID=did, Active=True))
     session.add(m.Rank(RankID=1, RankName="Police Sub-Inspector", Hierarchy=3, Active=True))
     session.add(m.Designation(DesignationID=1, DesignationName="Investigating Officer", Active=True, SortOrder=1))
     for code, desc in ACTS.items():
         session.add(m.Act(ActCode=code, ActDescription=desc, ShortName=code, Active=True))
-    for (act, sec), desc in SECTIONS.items():
-        session.add(m.Section(ActCode=act, SectionCode=sec, SectionDescription=desc, Active=True))
     for hid, name in CRIME_HEADS.items():
         session.add(m.CrimeHead(CrimeHeadID=hid, CrimeGroupName=name, Active=True))
-    for shid, (hid, name) in CRIME_SUBHEADS.items():
-        session.add(m.CrimeSubHead(CrimeSubHeadID=shid, CrimeHeadID=hid, CrimeHeadName=name, SeqID=shid))
     for sid, name in CASE_STATUS.items():
         session.add(m.CaseStatusMaster(CaseStatusID=sid, CaseStatusName=name))
     for cid, name in CASE_CATEGORY.items():
@@ -176,6 +176,23 @@ def _seed_reference_data(session: Session) -> None:
     session.add(m.ReligionMaster(ReligionID=1, ReligionName="Religion-1"))
     session.add(m.CasteMaster(caste_master_id=1, caste_master_name="Caste-1"))
     session.add(m.OccupationMaster(OccupationID=1, OccupationName="Occupation-1"))
+    session.flush()
+
+    # Level 1 — references level 0 (State, Act, CrimeHead).
+    for did, (name, _) in DISTRICTS.items():
+        session.add(m.District(DistrictID=did, DistrictName=name, StateID=STATE_ID, Active=True))
+    for (act, sec), desc in SECTIONS.items():
+        session.add(m.Section(ActCode=act, SectionCode=sec, SectionDescription=desc, Active=True))
+    for shid, (hid, name) in CRIME_SUBHEADS.items():
+        session.add(m.CrimeSubHead(CrimeSubHeadID=shid, CrimeHeadID=hid, CrimeHeadName=name, SeqID=shid))
+    session.flush()
+
+    # Level 2 — references District/UnitType.
+    for uid, (name, did) in UNITS.items():
+        session.add(m.Unit(UnitID=uid, UnitName=name, TypeID=1, StateID=STATE_ID, DistrictID=did, Active=True))
+    session.flush()
+
+    # Level 3 — references District/Unit/Rank/Designation.
     # One IO per unit, fixed EmployeeIDs = unit_id + 1000.
     for uid, (_, did) in UNITS.items():
         session.add(
@@ -185,6 +202,7 @@ def _seed_reference_data(session: Session) -> None:
                 AppointmentDate=date(2018, 1, 1),
             )
         )
+    session.flush()
 
 
 def _io_for(unit_id: int) -> int:
@@ -210,6 +228,11 @@ def _add_case(
         InfoReceivedPSDate=info_received, latitude=lat, longitude=lng, BriefFacts=brief,
     )
     session.add(case)
+    # FK-ordering fix (see _seed_reference_data): children ("Accused",
+    # "ActSectionAssociation", …) sort alphabetically BEFORE "CaseMaster" in an
+    # unrelated-mapper flush, so the parent must be flushed before any child a
+    # guarantee-builder adds next.
+    session.flush()
     return case
 
 

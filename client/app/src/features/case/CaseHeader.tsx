@@ -4,11 +4,7 @@
  * QualityBadge. Feature assembly of Session-1/2 reusable components (§G).
  */
 import { CrimeNoDecoder } from "@/components/case/CrimeNoDecoder";
-import {
-  ClassificationBadge,
-  QualityBadge,
-  RiskBand,
-} from "@/components/trust";
+import { ClassificationBadge, RiskBand } from "@/components/trust";
 import type { CaseDetail } from "@/types/case";
 
 function formatDate(iso: string | null): string {
@@ -29,7 +25,7 @@ export function CaseHeader({ detail }: { detail: CaseDetail }) {
         <span className="text-caption text-ink-muted">·</span>
         <span className="text-caption text-ink-muted">{detail.status.name}</span>
         {detail.risk_band ? (
-          <RiskBand band={detail.risk_band} score={detail.risk_score ?? undefined} />
+          <RiskBand band={detail.risk_band} />
         ) : null}
       </div>
 
@@ -48,9 +44,6 @@ export function CaseHeader({ detail }: { detail: CaseDetail }) {
 
       <div className="flex flex-wrap items-center gap-2">
         <ClassificationBadge classification={detail.classification} />
-        {detail.quality_score !== null ? (
-          <QualityBadge score={detail.quality_score} />
-        ) : null}
       </div>
     </header>
   );

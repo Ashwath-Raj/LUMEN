@@ -1,7 +1,7 @@
 /**
  * Design primitives barrel (arch §F design/primitives/).
  *
- * Session 0 ships the foundational primitives the shell and routing need:
+ * the foundational primitives the shell and routing need:
  * Panel, Button, Stat, EmptyState, ErrorState, DataGrid, Skeleton. The
  * remaining §F primitives (PipelineStages, AuditRow) and the D1–D13 components
  * are built in their feature sessions, each in its own directory.

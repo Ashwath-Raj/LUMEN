@@ -5,8 +5,7 @@
  * (AppShell behind RequireAuth): `/briefing` and the rail order Command → Geo →
  * Cases → Ask → Forecasts → Quality, plus the drill-in routes `/case/:id` and
  * `/person/:id` (never in the rail, §C), `/network`, `/anomalies`, and the
- * bottom `/system` · `/admin` group. Every page is a lazy-loaded TODO
- * placeholder in Session 0; feature sessions replace them one at a time.
+ * bottom `/system` · `/admin` group. Every page is lazy-loaded and code-split.
  *
  * Routes are code-split (arch §G: "route-level code splitting … so /command
  * doesn't pay for Cytoscape"). Each element is wrapped in a PanelErrorBoundary

@@ -5,9 +5,7 @@
  * links; events are never invented — the list is exactly what
  * `GET /cases/{id}/timeline` returns.
  *
- * The district-median reference (§30.4) is shown as context. The full
- * gaps-to-scale visual rail (D7) builds on this in a later graph/geo session;
- * Session 2 delivers the chronological, filterable, linkable event list.
+ * The district-median reference (§30.4) is shown as context.
  */
 import { useState } from "react";
 import { ChevronDown, ChevronRight, ArrowUpRight } from "lucide-react";

@@ -8,8 +8,8 @@
  * Auditor may receive `SCOPE_DENIED`, which the `QueryBoundary` renders as the
  * calm governance notice — an expected, correct state, not a failure.
  *
- * NOTE: canonical endpoint pending backend; wired to the §29.1 path, drift fails
- * typecheck (arch §G).
+ * Endpoint: `/audit` — live, policy-gated (§20.2); a caller without the
+ * Auditor role receives SCOPE_DENIED, which renders as the governance notice.
  */
 import { useQuery } from "@tanstack/react-query";
 

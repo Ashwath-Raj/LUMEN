@@ -1,12 +1,10 @@
 /**
  * Geo Intelligence hooks (E.2) — reconciled against the backend OpenAPI.
  *
- * Only `/geospatial/hotspots` exists as a live geo endpoint (currently 501). The
- * spec's `/geo/districts`, `/geo/delay`, `/geo/units/{id}` are NOT in the
- * OpenAPI, so their hooks do not request a non-existent path — they return a
- * disabled query flagged unavailable, and the map falls back to the static
- * district boundaries + degraded banner. District choropleth VALUES will wire up
- * when the backend adds a districts endpoint; boundaries never depended on it.
+ * The four §30.3 drill queries, all live at their §29.1 paths:
+ * `/geo/districts` (choropleth bands), `/geo/hotspots` (DBSCAN clusters +
+ * incident points), `/geo/units/{id}` (station catchment) and `/geo/delay`
+ * (§3.2 fact 5 reporting delay).
  *
  * One endpoint → one hook → one query key (arch §G); centralized paths from
  * `ENDPOINTS`. No bypassing Query, no invented routes.
@@ -69,10 +67,12 @@ export function useGeoUnits(districtId: string | null) {
     enabled: !!districtId,
     retry: false,
     queryFn: async ({ signal }) => {
-      if (ENDPOINTS.geoUnits === null) rejectUnavailable("Station catchment");
-      const { data } = await apiFetch<GeoUnitsResult>(ENDPOINTS.geoUnits, {
-        signal,
-      });
+      if (ENDPOINTS.geoUnits === null || !districtId)
+        rejectUnavailable("Station catchment");
+      const { data } = await apiFetch<GeoUnitsResult>(
+        ENDPOINTS.geoUnits(districtId),
+        { signal },
+      );
       return data;
     },
   });

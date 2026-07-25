@@ -1,22 +1,23 @@
 /**
- * Intelligence-graph hooks (D8, §14) — reconciled against the backend OpenAPI.
+ * Intelligence-graph hooks (D8, §14) — all three are LIVE against the
+ * specification's own paths:
  *
- * There is NO graph endpoint in the OpenAPI (`/cases/{id}/graph`,
- * `/network/query/{q}`, `/persons/{id}/network` are all absent — the graph
- * subsystem is a later backend session). So each hook resolves immediately to
- * the "not available yet" degraded state via `rejectUnavailable` — it never
- * requests a non-existent path and never fabricates relationships. When the
- * backend adds a graph endpoint, repoint the `ENDPOINTS` entry (one line) and the
- * hook goes live against the frozen `GraphContract` shape.
+ *   GET /network/query/{q1..q10}   §14.4 named queries → Insight + graph
+ *   GET /persons/{id}/network      §29.1 ego graph
+ *   GET /cases/{id}/graph          §29.1 investigation-board payload
  *
- * One endpoint → one hook → one query key (arch §G).
+ * The backend returns the §7 `GraphContract` shape; `adaptGraph` translates it
+ * to the canvas payload in one place. §14.4's "never a bare graph" invariant is
+ * preserved: the named-query hook returns the Insight alongside the graph.
  */
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
 import { ENDPOINTS } from "@/api/endpoints";
 import { rejectUnavailable } from "@/api/unavailable";
+import { adaptGraph, type RawGraphContract } from "@/api/graphAdapter";
 import { queryKeys } from "@/api/queryKeys";
+import type { Insight } from "@/types/contracts";
 import type { GraphPayload, GraphQueryResult } from "@/types/graph";
 
 /** `GET /cases/{id}/graph` — the investigation board payload (E.4). */
@@ -27,28 +28,45 @@ export function useCaseGraph(id: string) {
     retry: false,
     queryFn: async ({ signal }): Promise<GraphPayload> => {
       if (ENDPOINTS.caseGraph === null) rejectUnavailable("Investigation graph");
-      const { data } = await apiFetch<GraphPayload>(ENDPOINTS.caseGraph(id), {
+      const { data } = await apiFetch<RawGraphContract>(ENDPOINTS.caseGraph(id), {
         signal,
       });
-      return data;
+      return adaptGraph(data)!;
     },
   });
 }
 
+/** Params the ten §14.4 queries accept (each uses the subset it needs). */
+export interface NetworkQueryParams {
+  person_a?: string;
+  person_b?: string;
+  group_a?: string[];
+  group_b?: string[];
+  district_id?: number;
+  case_id?: number;
+  top_n?: number;
+  as_of?: string;
+}
+
 /** `GET /network/query/{q}` — one of the ten named queries (E.6, §14.4). */
-export function useNetworkQuery(q: string | null) {
+export function useNetworkQuery(q: string | null, params: NetworkQueryParams = {}) {
   return useQuery({
-    queryKey: queryKeys.networkQuery(q ?? ""),
+    queryKey: queryKeys.networkQuery(q ?? "", params as Record<string, unknown>),
     enabled: !!q,
     retry: false,
     queryFn: async ({ signal }): Promise<GraphQueryResult> => {
-      if (ENDPOINTS.networkQuery === null || !q)
-        rejectUnavailable("Network query");
-      const { data } = await apiFetch<GraphQueryResult>(
+      if (ENDPOINTS.networkQuery === null || !q) rejectUnavailable("Network query");
+      const query = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        if (value === undefined || value === null || value === "") continue;
+        if (Array.isArray(value)) value.forEach((v) => query.append(key, String(v)));
+        else query.set(key, String(value));
+      }
+      const { data } = await apiFetch<{ insight: Insight; graph: RawGraphContract }>(
         ENDPOINTS.networkQuery(q),
-        { signal },
+        { signal, query },
       );
-      return data;
+      return { insight: data.insight, graph: adaptGraph(data.graph)! };
     },
   });
 }
@@ -61,11 +79,11 @@ export function usePersonNetwork(id: string) {
     retry: false,
     queryFn: async ({ signal }): Promise<GraphPayload> => {
       if (ENDPOINTS.personNetwork === null) rejectUnavailable("Ego graph");
-      const { data } = await apiFetch<GraphPayload>(
+      const { data } = await apiFetch<RawGraphContract>(
         ENDPOINTS.personNetwork(id),
         { signal },
       );
-      return data;
+      return adaptGraph(data)!;
     },
   });
 }

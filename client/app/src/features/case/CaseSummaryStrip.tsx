@@ -21,19 +21,13 @@ export function CaseSummaryStrip({ detail, onGoToTab }: CaseSummaryStripProps) {
       <Stat
         label="Risk"
         value={detail.risk_band ? RISK_LABEL[detail.risk_band] : "—"}
-        hint={detail.risk_score !== null ? detail.risk_score.toFixed(2) : "no insight yet"}
-        onClick={() => onGoToTab("insights")}
-      />
-      <Stat
-        label="Confidence"
-        value={detail.confidence !== null ? detail.confidence.toFixed(2) : "—"}
         hint="decomposed on Insights"
         onClick={() => onGoToTab("insights")}
       />
       <Stat
-        label="Quality"
-        value={detail.quality_score !== null ? detail.quality_score.toFixed(2) : "—"}
-        hint="§5.2 scope score"
+        label="Officers"
+        value={detail.officers.length}
+        hint="assigned"
         onClick={() => onGoToTab("overview")}
       />
       <Stat

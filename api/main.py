@@ -1,7 +1,10 @@
 """
 LUMEN Crime Intelligence Platform — FastAPI application entry-point.
 
-NOTE: The legacy prototype's DB models, JWT auth, and Gemini AI integration
+NOTE: The API surface is the §29.1 contract exactly. The legacy prototype
+routers (analytics/operations/administration/dashboard/geospatial/intelligence/
+investigation) were removed in the specification-compliance pass — they were not
+in §29.1 and carried no spec mandate. The legacy prototype's DB models, JWT auth, and Gemini AI integration
 have been deliberately removed ahead of LUMEN_MASTER_SPEC_V3's canonical
 rebuild of these subsystems under lumen/{db,identity,ai}/ (Sessions 2, 3,
 and 14 respectively). The app boots with NO external dependencies: no DB
@@ -17,18 +20,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from lumen.api.routers.administration import router as administration_router
 from lumen.api.routers.audit import router as audit_router
 from lumen.api.routers.briefing import router as briefing_router
 from lumen.api.routers.ai import router as ai_router
-from lumen.api.routers.analytics import router as analytics_router
 from lumen.api.routers.auth import router as auth_router
-from lumen.api.routers.dashboard import router as dashboard_router
-from lumen.api.routers.geospatial import router as geospatial_router
 from lumen.api.routers.health import router as health_router
-from lumen.api.routers.intelligence import router as intelligence_router
-from lumen.api.routers.investigation import router as investigation_router
-from lumen.api.routers.operations import router as operations_router
+from lumen.api.routers.cases import router as cases_router
+from lumen.api.routers.geo import router as geo_router
+from lumen.api.routers.insights import router as insights_router
+from lumen.api.routers.overview import router as overview_router
+from lumen.api.routers.predictions import router as predictions_router
+from lumen.api.routers.network import router as network_router
 from lumen.api.routers.persons import router as persons_router
 from lumen.api.routers.quality import router as quality_router
 from lumen.api.routers.system import router as system_router
@@ -70,14 +72,13 @@ register_exception_handlers(app)
 
 app.include_router(health_router)
 app.include_router(auth_router, prefix=settings.API_PREFIX)
-app.include_router(dashboard_router, prefix=settings.API_PREFIX)
-app.include_router(analytics_router, prefix=settings.API_PREFIX)
-app.include_router(geospatial_router, prefix=settings.API_PREFIX)
-app.include_router(investigation_router, prefix=settings.API_PREFIX)
-app.include_router(intelligence_router, prefix=settings.API_PREFIX)
-app.include_router(operations_router, prefix=settings.API_PREFIX)
-app.include_router(administration_router, prefix=settings.API_PREFIX)
 app.include_router(quality_router, prefix=settings.API_PREFIX)
+app.include_router(overview_router, prefix=settings.API_PREFIX)
+app.include_router(cases_router, prefix=settings.API_PREFIX)
+app.include_router(geo_router, prefix=settings.API_PREFIX)
+app.include_router(insights_router, prefix=settings.API_PREFIX)
+app.include_router(predictions_router, prefix=settings.API_PREFIX)
+app.include_router(network_router, prefix=settings.API_PREFIX)
 app.include_router(persons_router, prefix=settings.API_PREFIX)
 app.include_router(ai_router, prefix=settings.API_PREFIX)
 app.include_router(system_router, prefix=settings.API_PREFIX)

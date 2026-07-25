@@ -182,6 +182,10 @@ def ingest_document(session: Session, doc: SourceDoc,
         doc_id=doc.doc_id, kind=doc.kind, title=doc.title, source=doc.source,
         effective_from=doc.effective_from,
         classification=KIND_CLASSIFICATION[doc.kind], checksum=checksum))
+    # FK-ordering fix: with FK-only models the unit of work flushes unrelated
+    # mappers in table-name order, and "lumen_kb_chunk" sorts before
+    # "lumen_kb_document" — flush the parent before adding its chunks.
+    session.flush()
     for ordinal, text in enumerate(chunk_text(doc.text, max_chars=max_chars), start=1):
         session.add(LumenKbChunk(
             chunk_id=f"{doc.doc_id}#{ordinal}", doc_id=doc.doc_id, ordinal=ordinal,

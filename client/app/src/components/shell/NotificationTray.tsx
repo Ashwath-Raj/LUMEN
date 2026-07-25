@@ -1,12 +1,9 @@
 /**
  * `NotificationTray` — the shell notification tray (arch §D shell). The live
  * feed (AnomalyDetected events → `/anomalies`) is wired in a later session with
- * the event bus (§19); Session 1 ships the tray as a functional placeholder: a
- * toggle button with an unread indicator slot and a dropdown that shows an
- * explicit empty state (never a bare, broken menu).
- *
- * It is a real disclosure (open/close, Esc closes, click-outside closes, aria)
- * so later sessions only add data, not behaviour.
+ * the event bus (§19), which is not yet emitting to the client. The tray is a
+ * complete disclosure (open/close, Esc, click-outside, aria) that states its
+ * empty condition explicitly rather than showing a broken menu.
  */
 import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";

@@ -1,5 +1,5 @@
 /**
- * Status panel (Session 2) — the case's current status (§3.5 CaseStatusMaster)
+ * Status panel  — the case's current status (§3.5 CaseStatusMaster)
  * and where it sits in the investigation lifecycle (§2.1 ProcessEvent stages:
  * incident → info received → registered → arrest → chargesheet). The stage is
  * derived from the timeline (the latest recorded event), so it reflects the

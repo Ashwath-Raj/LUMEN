@@ -5,9 +5,9 @@
  * The architecture mandates these types be GENERATED from the backend's
  * Pydantic contracts (spec §7 rule 5: "Frontend types are generated from these
  * models — never hand-written"), so that a contract drift fails the typecheck.
- * The generator is NOT wired in Session 0 (no generation step exists yet); the
+ * The generator is not wired yet (no generation step exists); the
  * shapes below are a faithful hand-transcription of the spec's own models,
- * marked here so Session 1 replaces this file with generated output. They are
+ * marked here so a generation step can replace this file wholesale. They are
  * the minimum the shell + `InsightCard` scaffold reference; feature sessions
  * extend from the generated set, never by hand-editing this file.
  * ─────────────────────────────────────────────────────────────────────────

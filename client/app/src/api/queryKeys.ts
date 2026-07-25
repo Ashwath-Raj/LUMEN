@@ -10,7 +10,7 @@ export const queryKeys = {
   insights: (params?: Record<string, unknown>) =>
     ["insights", params ?? {}] as const,
 
-  // Case Registry + Workspace (Session 2, §29.1).
+  // Case Registry + Workspace (§29.1).
   cases: (params?: Record<string, unknown>) => ["cases", params ?? {}] as const,
   case: (id: string) => ["case", id] as const,
   caseTimeline: (id: string) => ["case", id, "timeline"] as const,
@@ -20,7 +20,7 @@ export const queryKeys = {
     ["case", id, "activity", params ?? {}] as const,
   caseLookups: () => ["cases", "lookups"] as const,
 
-  // Geo Intelligence (Session 3, §29.1).
+  // Geo Intelligence (§29.1, §30.3).
   geoBoundaries: () => ["geo", "boundaries"] as const,
   geoDistricts: () => ["geo", "districts"] as const,
   geoHotspots: (params?: Record<string, unknown>) =>
@@ -32,10 +32,23 @@ export const queryKeys = {
   person: (id: string) => ["person", id] as const,
   personNetwork: (id: string) => ["person", id, "network"] as const,
 
-  // Intelligence graph (Session 4).
+  // Intelligence graph (§14).
   caseGraph: (id: string) => ["case", id, "graph"] as const,
   networkQuery: (q: string, params?: Record<string, unknown>) =>
     ["network", q, params ?? {}] as const,
 
   systemHealth: () => ["system", "health"] as const,
+  systemMetrics: () => ["system", "metrics"] as const,
+  systemRegistry: () => ["system", "registry"] as const,
+  systemEval: () => ["system", "eval"] as const,
+  qualityScores: () => ["quality", "scores"] as const,
+  qualityFindings: () => ["quality", "findings"] as const,
+
+  // Intelligence workbench (§16, §18).
+  persons: (params?: Record<string, unknown>) =>
+    ["persons", params ?? {}] as const,
+  recommendations: (subject?: string) => ["recommendations", subject ?? ""] as const,
+  anomalies: () => ["anomalies"] as const,
+  predictionsDistricts: () => ["predictions", "districts"] as const,
+  predictionOutcome: (caseId: string) => ["predictions", "outcome", caseId] as const,
 } as const;

@@ -8,14 +8,15 @@
  * node/edge VOCABULARIES below are the display set the UI renders (glyph +
  * colour); the backend's §14.2 semantic vocabulary is narrower today, and the
  * GraphContract payload is open dicts, so this is a rendering superset — never
- * fabricated data. There is currently NO graph endpoint in the OpenAPI, so the
- * graph renders its empty/degraded state until one lands.
+ * fabricated data. The graph endpoints (§14.4 named queries, ego graph, board)
+ * are live; `api/graphAdapter.ts` maps the §7 contract onto these types.
  * ─────────────────────────────────────────────────────────────────────────
  */
 
 /** Node kinds the graph can render (Session-4 brief vocabulary). */
 export type GraphNodeKind =
   | "person"
+  | "participant"   // §2.1 CaseParticipant — an accused row, pre-resolution
   | "case"
   | "vehicle"
   | "organization"
@@ -26,13 +27,21 @@ export type GraphNodeKind =
   | "officer";
 
 /** Edge relationship kinds (Session-4 brief vocabulary; §14.3). */
+/** §14.3 relationship vocabulary. The first group is what the backend's
+ *  projection actually emits (`lumen_graph_edge.rel`); the rest are the
+ *  Session-4 display vocabulary retained for surfaces that carry them. An
+ *  unrecognised rel renders with its raw label rather than being dropped. */
 export type GraphEdgeKind =
+  | "CO_ACCUSED"
+  | "SAME_IO_AS"
+  | "RESOLVES_TO"
   | "ASSOCIATED_WITH"
+  | "INVESTIGATED_BY"
   | "COMMUNICATED_WITH"
   | "OWNS"
   | "VISITED"
-  | "INVESTIGATED_BY"
-  | "RELATED_TO";
+  | "RELATED_TO"
+  | (string & {});
 
 /** One graph node (§14.2 semantic node). */
 export interface GraphNode {

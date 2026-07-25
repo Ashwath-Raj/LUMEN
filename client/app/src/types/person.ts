@@ -1,8 +1,7 @@
 /**
  * Person (identity) contract types (§6.4, E.5) — transcribed from the REAL,
  * DB-backed `/persons/{id}` router (`api/lumen/api/routers/persons.py`), which
- * returns live data (not a 501 stub). This is the one Session-4 surface with a
- * genuine backend source.
+ * returns live data from `lumen_person` / `lumen_person_link`.
  *
  * §6.4 presentation rules the shape carries: resolution confidence is ALWAYS
  * present (P10); auto-linked members carry their `match_features` "see why";

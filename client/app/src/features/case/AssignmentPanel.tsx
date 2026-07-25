@@ -1,5 +1,5 @@
 /**
- * Assignment panel (Session 2) — who is assigned to this case: the investigating
+ * Assignment panel  — who is assigned to this case: the investigating
  * officer and the registering officer, from `CaseDetail.officers` (§2.1 Officer).
  * Each officer opens in the InspectorPanel (no navigation away) and links to
  * their caseload (`/cases?officer=…`).

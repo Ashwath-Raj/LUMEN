@@ -20,21 +20,12 @@ const COLUMNS: Column<GeoDistrict>[] = [
   {
     key: "risk",
     header: "Risk",
-    render: (d) => <RiskBand band={d.risk_band} score={d.risk_score} showScore />,
+    render: (d) => <RiskBand band={d.risk_band} />,
   },
   {
     key: "case_count",
     header: "Cases",
     render: (d) => <span className="font-mono text-ink-muted">{d.case_count}</span>,
-  },
-  {
-    key: "quality",
-    header: "Quality",
-    render: (d) => (
-      <span className="font-mono text-ink-muted">
-        {d.quality_score !== null ? d.quality_score.toFixed(2) : "—"}
-      </span>
-    ),
   },
 ];
 

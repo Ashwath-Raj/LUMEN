@@ -1,6 +1,6 @@
 /**
  * `EmptyState` — always has copy, never a bare spinner (arch §F, §30.2).
- * Session 0 ships the primitive; feature sessions supply meaningful copy.
+ * the primitive; feature sessions supply meaningful copy.
  */
 import type { ReactNode } from "react";
 

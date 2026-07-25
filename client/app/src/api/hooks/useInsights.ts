@@ -11,10 +11,7 @@
  * the same params key the cache, so two callers with the same filters share a
  * fetch and back/forward through the URL is a cache hit.
  *
- * NOTE: as with `/overview`, the canonical `/insights` endpoint is not yet
- * served (legacy `/intelligence/*` stubs return HTTP 501). Wired to the frozen
- * §8 `Insight` contract + §29 envelope; connects unchanged when the endpoint
- * lands, and drift fails the typecheck (arch §G).
+ * Endpoint: `/intelligence/workbench` — the persisted §8 Insight feed.
  */
 import { useQuery } from "@tanstack/react-query";
 
@@ -58,15 +55,22 @@ export function useInsights(params: InsightFeedParams = {}) {
     // for every filtered key; the fixed-shape params satisfy it structurally.
     queryKey: queryKeys.insights(params as Record<string, unknown>),
     retry: false,
-    queryFn: async ({ signal }) => {
-      // No `/insights` endpoint exists in the backend OpenAPI → degraded state,
-      // no request to a non-existent path (repoint ENDPOINTS.insights later).
+    queryFn: async ({ signal }): Promise<InsightFeed> => {
       if (ENDPOINTS.insights === null) rejectUnavailable("Insights feed");
-      const { data } = await apiFetch<InsightFeed>(ENDPOINTS.insights, {
-        signal,
-        query: toQuery(params),
-      });
-      return data;
+      // Served by GET /intelligence/workbench (the persisted lumen_insight
+      // feed): { insights, total, limit, offset } → normalised to InsightFeed.
+      const { data } = await apiFetch<{
+        insights: Insight[];
+        total: number;
+        limit: number;
+        offset: number;
+      }>(ENDPOINTS.insights, { signal, query: toQuery(params) });
+      return {
+        items: data.insights,
+        total: data.total,
+        limit: data.limit,
+        offset: data.offset,
+      };
     },
   });
 }

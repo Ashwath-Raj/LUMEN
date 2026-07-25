@@ -10,11 +10,7 @@
  */
 import type { Column } from "@/design/primitives";
 import { CrimeNoDecoder } from "@/components/case/CrimeNoDecoder";
-import { RiskBand, QualityBadge } from "@/components/trust";
-import {
-  CONFIDENCE_TOKEN,
-  confidenceBand,
-} from "@/design/tokens";
+import { RiskBand } from "@/components/trust";
 import type { CaseListItem } from "@/types/case";
 
 function shortDate(iso: string | null): string {
@@ -89,34 +85,16 @@ export const CASE_COLUMNS: Column<CaseListItem>[] = [
     sortable: true,
     render: (c) =>
       c.risk_band ? (
-        <RiskBand band={c.risk_band} score={c.risk_score ?? undefined} />
+        <RiskBand band={c.risk_band} />
       ) : (
         <span className="text-ink-faint">—</span>
       ),
   },
   {
-    key: "confidence",
-    header: "Confidence",
-    render: (c) =>
-      c.confidence !== null ? (
-        <span
-          className="font-mono"
-          style={{ color: CONFIDENCE_TOKEN[confidenceBand(c.confidence)] }}
-        >
-          {c.confidence.toFixed(2)}
-        </span>
-      ) : (
-        <span className="text-ink-faint">—</span>
-      ),
-  },
-  {
-    key: "quality",
-    header: "Quality",
-    render: (c) =>
-      c.quality_score !== null ? (
-        <QualityBadge score={c.quality_score} />
-      ) : (
-        <span className="text-ink-faint">—</span>
-      ),
+    key: "insights",
+    header: "Insights",
+    render: (c) => (
+      <span className="font-mono text-ink-muted">{c.insight_count}</span>
+    ),
   },
 ];

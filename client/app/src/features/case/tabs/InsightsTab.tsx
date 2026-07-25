@@ -2,7 +2,7 @@
  * Insights tab (E.4) — the case's §8 insights as `InsightCard`s. Each card
  * already renders summary, confidence + breakdown, factors, evidence,
  * limitations, recommendation, lineage, the §11 trust caveat, and the
- * classification/lifecycle badges (Session 1, D1) — so "no insight may render
+ * classification/lifecycle badges  — so "no insight may render
  * without limitations" is structurally guaranteed here, not re-checked.
  *
  * Cards are compact-expandable in the feed; selecting one opens it in the

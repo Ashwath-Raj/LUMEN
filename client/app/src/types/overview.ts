@@ -20,8 +20,9 @@ import type { RiskBand } from "@/design/tokens";
 export interface DistrictRisk {
   district_id: string;
   district_name: string;
+  /** Band only — §8 invariant 1 keeps the numeric score inside the Insight. */
   band: RiskBand;
-  score: number;
+  case_count: number;
 }
 
 /** One point in a 12-month per-crime-head trend series (E.1 sparklines). */
@@ -63,6 +64,4 @@ export interface Overview {
   district_risk: DistrictRisk[];
   trends: CrimeHeadTrend[];
   network_figures: NetworkFigure[];
-  /** Statewide §5.2 quality score shown in the shell (E.1). */
-  quality_score: number;
 }
