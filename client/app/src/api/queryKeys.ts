@@ -20,6 +20,22 @@ export const queryKeys = {
     ["case", id, "activity", params ?? {}] as const,
   caseLookups: () => ["cases", "lookups"] as const,
 
+  // Geo Intelligence (Session 3, §29.1).
+  geoBoundaries: () => ["geo", "boundaries"] as const,
+  geoDistricts: () => ["geo", "districts"] as const,
+  geoHotspots: (params?: Record<string, unknown>) =>
+    ["geo", "hotspots", params ?? {}] as const,
+  geoUnits: (districtId: string) => ["geo", "units", districtId] as const,
+  geoDelay: (params?: Record<string, unknown>) =>
+    ["geo", "delay", params ?? {}] as const,
+
   person: (id: string) => ["person", id] as const,
+  personNetwork: (id: string) => ["person", id, "network"] as const,
+
+  // Intelligence graph (Session 4).
+  caseGraph: (id: string) => ["case", id, "graph"] as const,
+  networkQuery: (q: string, params?: Record<string, unknown>) =>
+    ["network", q, params ?? {}] as const,
+
   systemHealth: () => ["system", "health"] as const,
 } as const;

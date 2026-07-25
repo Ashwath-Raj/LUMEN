@@ -10,6 +10,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
 import { queryKeys } from "@/api/queryKeys";
 import type { CaseDetail } from "@/types/case";
 
@@ -18,7 +19,7 @@ export function useCase(id: string) {
     queryKey: queryKeys.case(id),
     enabled: !!id,
     queryFn: async ({ signal }) => {
-      const { data } = await apiFetch<CaseDetail>(`/cases/${id}`, { signal });
+      const { data } = await apiFetch<CaseDetail>(ENDPOINTS.case(id), { signal });
       return data;
     },
   });

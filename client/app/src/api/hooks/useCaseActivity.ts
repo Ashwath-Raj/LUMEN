@@ -14,6 +14,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
 import { queryKeys } from "@/api/queryKeys";
 import type { ActivityLog } from "@/types/timeline";
 
@@ -31,7 +32,7 @@ export function useCaseActivity(id: string, params: CaseActivityParams = {}) {
       if (params.limit !== undefined) query.set("limit", String(params.limit));
       if (params.offset !== undefined)
         query.set("offset", String(params.offset));
-      const { data } = await apiFetch<ActivityLog>("/audit", { signal, query });
+      const { data } = await apiFetch<ActivityLog>(ENDPOINTS.audit, { signal, query });
       return data;
     },
   });

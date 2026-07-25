@@ -14,6 +14,8 @@ export * from "./states";
 export * from "./entity";
 export * from "./filters";
 export * from "./inspector";
+export * from "./graph";
+export * from "./person";
 export { CrimeNoDecoder } from "./case/CrimeNoDecoder";
 
 export { PanelErrorBoundary } from "./PanelErrorBoundary";

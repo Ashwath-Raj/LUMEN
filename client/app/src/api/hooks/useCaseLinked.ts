@@ -11,6 +11,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
+import { rejectUnavailable } from "@/api/unavailable";
 import { queryKeys } from "@/api/queryKeys";
 import type { CaseListItem } from "@/types/case";
 
@@ -25,8 +27,10 @@ export function useCaseLinked(id: string) {
   return useQuery({
     queryKey: queryKeys.caseLinked(id),
     enabled: !!id,
+    retry: false,
     queryFn: async ({ signal }) => {
-      const { data } = await apiFetch<LinkedCase[]>(`/cases/${id}/linked`, {
+      if (ENDPOINTS.caseLinked === null) rejectUnavailable("Linked cases");
+      const { data } = await apiFetch<LinkedCase[]>(ENDPOINTS.caseLinked, {
         signal,
       });
       return data;

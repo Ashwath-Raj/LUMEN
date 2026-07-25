@@ -19,6 +19,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
+import { rejectUnavailable } from "@/api/unavailable";
 import { queryKeys } from "@/api/queryKeys";
 import type { Insight, InsightKind, LifecycleState } from "@/types/contracts";
 
@@ -55,8 +57,12 @@ export function useInsights(params: InsightFeedParams = {}) {
     // queryKeys.insights takes the open Record shape the Session-0 registry uses
     // for every filtered key; the fixed-shape params satisfy it structurally.
     queryKey: queryKeys.insights(params as Record<string, unknown>),
+    retry: false,
     queryFn: async ({ signal }) => {
-      const { data } = await apiFetch<InsightFeed>("/insights", {
+      // No `/insights` endpoint exists in the backend OpenAPI → degraded state,
+      // no request to a non-existent path (repoint ENDPOINTS.insights later).
+      if (ENDPOINTS.insights === null) rejectUnavailable("Insights feed");
+      const { data } = await apiFetch<InsightFeed>(ENDPOINTS.insights, {
         signal,
         query: toQuery(params),
       });

@@ -18,6 +18,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
 import { queryKeys } from "@/api/queryKeys";
 import type { CaseList } from "@/types/case";
 import type { CaseFilters } from "@/types/caseFilters";
@@ -43,7 +44,7 @@ export function useCases(filters: CaseFilters) {
   return useQuery({
     queryKey: queryKeys.cases(filters as Record<string, unknown>),
     queryFn: async ({ signal }) => {
-      const { data } = await apiFetch<CaseList>("/cases", {
+      const { data } = await apiFetch<CaseList>(ENDPOINTS.cases, {
         signal,
         query: caseFiltersToQuery(filters),
       });

@@ -87,7 +87,7 @@ export default function CaseRegistryPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 p-6">
       <header className="flex items-baseline justify-between">
         <h1 className="font-display text-page-title text-ink-primary">Cases</h1>
         <span className="text-caption text-ink-muted">Your assigned scope</span>
@@ -106,6 +106,7 @@ export default function CaseRegistryPage() {
         <QueryBoundary
           query={casesQuery}
           emptyMessage="No cases match these filters. Adjust or clear them to widen the search."
+          degradedMessage="The case registry isn’t available yet. It will populate automatically once the /cases endpoint is live."
           isEmpty={(data) => data.items.length === 0}
           skeletonLines={10}
         >

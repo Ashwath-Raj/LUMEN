@@ -11,15 +11,21 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
+import { rejectUnavailable } from "@/api/unavailable";
 import { queryKeys } from "@/api/queryKeys";
 import type { Insight } from "@/types/contracts";
 
+// No `/cases/{id}/insights` endpoint exists in the backend OpenAPI (the Insight
+// engine is a later backend session) → degraded state, no invented request.
 export function useCaseInsights(id: string) {
   return useQuery({
     queryKey: queryKeys.caseInsights(id),
     enabled: !!id,
+    retry: false,
     queryFn: async ({ signal }) => {
-      const { data } = await apiFetch<Insight[]>(`/cases/${id}/insights`, {
+      if (ENDPOINTS.caseInsights === null) rejectUnavailable("Case insights");
+      const { data } = await apiFetch<Insight[]>(ENDPOINTS.caseInsights, {
         signal,
       });
       return data;

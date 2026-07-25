@@ -12,6 +12,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
+import { rejectUnavailable } from "@/api/unavailable";
 
 /** §17.5 officer feedback payload. */
 export interface InsightFeedback {
@@ -24,8 +26,9 @@ export function useInsightFeedback(insightId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (feedback: InsightFeedback) => {
+      if (ENDPOINTS.insightFeedback === null) rejectUnavailable("Insight feedback");
       const { data } = await apiFetch<{ ok: true }>(
-        `/insights/${insightId}/feedback`,
+        ENDPOINTS.insightFeedback(insightId),
         { method: "POST", body: feedback },
       );
       return data;
@@ -40,8 +43,9 @@ export function useInsightApproval(insightId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
+      if (ENDPOINTS.insightApprove === null) rejectUnavailable("Insight approval");
       const { data } = await apiFetch<{ ok: true }>(
-        `/insights/${insightId}/approve`,
+        ENDPOINTS.insightApprove(insightId),
         { method: "POST" },
       );
       return data;

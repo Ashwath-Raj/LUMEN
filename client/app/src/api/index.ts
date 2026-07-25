@@ -22,3 +22,16 @@ export { useCaseActivity } from "./hooks/useCaseActivity";
 export { useCaseLinked } from "./hooks/useCaseLinked";
 export type { LinkedCase } from "./hooks/useCaseLinked";
 export { useCaseLookups } from "./hooks/useCaseLookups";
+
+// Geo Intelligence (Session 3)
+export {
+  useGeoDistricts,
+  useGeoUnits,
+  useGeoHotspots,
+  useGeoDelay,
+} from "./hooks/useGeo";
+export type { GeoQueryParams } from "./hooks/useGeo";
+
+// Intelligence graph + person dossier (Session 4)
+export { useCaseGraph, useNetworkQuery, usePersonNetwork } from "./hooks/useGraph";
+export { usePerson } from "./hooks/usePerson";

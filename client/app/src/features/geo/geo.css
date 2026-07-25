@@ -1,0 +1,78 @@
+/*
+ * Intelligence-GIS theme for the Leaflet MapCanvas (Session 3 visual quality:
+ * "resemble a professional Intelligence GIS … dark navy theme, thin cyan
+ * borders, cyan glow for selected district"). Scoped to `.lumen-map`; imported
+ * by MapCanvas so it ships in the lazy geo chunk. All colours are design tokens.
+ */
+
+.lumen-map {
+  background: var(--bg-void);
+  /*
+   * ── Controls-behind-map regression fix (root cause) ──────────────────
+   * A Leaflet container is `position: relative; z-index: auto`, so it does NOT
+   * establish its own stacking context. Its internal panes carry high z-indexes
+   * (overlayPane 400, markerPane 600, tooltipPane 650, controls 1000) which then
+   * leak into the SHARED stacking context and outrank the sibling controls
+   * overlay (--z-inspector = 300) — so the map's panes paint above the controls.
+   * A zoom is the trigger that makes Leaflet re-assert those pane z-indexes on
+   * `zoomend`, after which the controls settle behind the map.
+   *
+   * `isolation: isolate` forces the container to be its own stacking context
+   * with ZERO visual/transform side effects — the CSS primitive designed for
+   * exactly this. Every Leaflet pane (200–1000) is now scoped INSIDE the map, so
+   * the whole map behaves as one atom at its own level (z-auto), and the sibling
+   * controls overlay (z 300) reliably sits above it at every zoom level. No
+   * arbitrary z-index, no !important, no per-pane overrides.
+   */
+  isolation: isolate;
+}
+
+/* Dark, low-chrome zoom control (avoids the generic Leaflet look). */
+.lumen-map .leaflet-control-zoom a {
+  background: var(--bg-panel);
+  color: var(--ink-primary);
+  border-color: var(--line);
+}
+.lumen-map .leaflet-control-zoom a:hover {
+  background: var(--bg-raised);
+  color: var(--signal);
+}
+
+/* Attribution: unobtrusive on the dark theme. */
+.lumen-map .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--bg-panel) 80%, transparent);
+  color: var(--ink-faint);
+}
+.lumen-map .leaflet-control-attribution a {
+  color: var(--ink-muted);
+}
+
+/* Dark tooltips (district/marker labels). */
+.lumen-map .leaflet-tooltip.lumen-tip {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  color: var(--ink-primary);
+  box-shadow: var(--shadow-panel);
+  font-size: var(--text-caption);
+  padding: 2px 8px;
+}
+.lumen-map .leaflet-tooltip.lumen-tip::before {
+  display: none; /* hide the callout arrow for a cleaner GIS label */
+}
+
+/* Selected district — cyan glow (SVG drop-shadow, so it scales with zoom). */
+.lumen-map .geo-district-selected {
+  filter: drop-shadow(0 0 5px var(--signal));
+}
+
+/* Districts sit in their own pane; interactive cursor on hover. */
+.lumen-map .leaflet-interactive {
+  cursor: pointer;
+}
+
+/* Reduced-motion: disable Leaflet's zoom/pan animations (§30.10). */
+@media (prefers-reduced-motion: reduce) {
+  .lumen-map .leaflet-zoom-animated {
+    transition: none !important;
+  }
+}

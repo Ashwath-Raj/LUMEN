@@ -4,5 +4,6 @@
  * the five states.
  */
 export { QueryBoundary } from "./QueryBoundary";
+export { DegradedState } from "./DegradedState";
 export { DelayedSkeleton } from "./DelayedSkeleton";
 export { StalenessBanner } from "./StalenessBanner";

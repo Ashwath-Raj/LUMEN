@@ -5,4 +5,7 @@ export * from "./overview";
 export * from "./case";
 export * from "./timeline";
 export * from "./caseFilters";
+export * from "./geo";
+export * from "./graph";
+export * from "./person";
 export * from "./session";

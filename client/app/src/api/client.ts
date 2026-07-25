@@ -65,6 +65,44 @@ function publishDegradation(meta: EnvelopeMeta | undefined): void {
   for (const listener of degradationListeners) listener(meta.degradation_level);
 }
 
+/**
+ * Infer a §29.3 error code from an HTTP status when the response body is not a
+ * §29 envelope (e.g. an endpoint that isn't implemented yet returns a bare
+ * FastAPI 501). 501/502/503/504 are "the capability isn't available" → a
+ * degraded state, not a failure.
+ */
+function codeForStatus(status: number): ApiErrorCode {
+  switch (status) {
+    case 400:
+    case 422:
+      return "VALIDATION_FAILED";
+    case 403:
+      return "SCOPE_DENIED";
+    case 404:
+      return "NOT_FOUND";
+    case 429:
+      return "RATE_LIMITED";
+    case 501:
+    case 502:
+    case 503:
+    case 504:
+      return "DEPENDENCY_UNAVAILABLE";
+    default:
+      return "INTERNAL";
+  }
+}
+
+function messageForStatus(status: number): string {
+  if (status === 501) return "This capability is not available yet.";
+  if (status === 502 || status === 503 || status === 504)
+    return "The service is temporarily unavailable.";
+  return `Request failed (${status})`;
+}
+
+function isRetryableStatus(status: number): boolean {
+  return status === 502 || status === 503 || status === 504;
+}
+
 export interface RequestOptions {
   method?: "GET" | "POST";
   body?: unknown;
@@ -126,10 +164,15 @@ export async function apiFetch<T>(
   if (!response.ok || !envelope || envelope.error) {
     const err = envelope?.error;
     throw new ApiError({
-      code: (err?.code as ApiErrorCode) ?? "INTERNAL",
-      message: err?.message ?? `Request failed (${response.status})`,
+      // Prefer the envelope's §29.3 code; otherwise infer from the HTTP status
+      // so a non-envelope failure (e.g. a FastAPI 501 `HTTPException`, or the
+      // dev proxy's 502) degrades gracefully instead of reading as a hard
+      // INTERNAL error. This is what lets an unimplemented endpoint render a
+      // calm "not available yet" state rather than a red failure panel.
+      code: (err?.code as ApiErrorCode) ?? codeForStatus(response.status),
+      message: err?.message ?? messageForStatus(response.status),
       traceId: err?.trace_id ?? "",
-      retryable: err?.retryable ?? false,
+      retryable: err?.retryable ?? isRetryableStatus(response.status),
       status: response.status,
     });
   }

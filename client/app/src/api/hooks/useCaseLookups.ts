@@ -14,6 +14,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/api/client";
+import { ENDPOINTS } from "@/api/endpoints";
+import { rejectUnavailable } from "@/api/unavailable";
 import { queryKeys } from "@/api/queryKeys";
 import type { CaseLookups } from "@/types/caseFilters";
 
@@ -23,7 +25,10 @@ export function useCaseLookups() {
     staleTime: 60 * 60 * 1000, // 1h — lookups are near-static (§23 cache intent)
     retry: false, // a missing lookups facet must not spam retries; UI falls back
     queryFn: async ({ signal }) => {
-      const { data } = await apiFetch<CaseLookups>("/cases/lookups", { signal });
+      // No `/cases/lookups` endpoint exists → the FilterBar falls back to
+      // free-text filter entry (see CaseRegistryPage); never requests it.
+      if (ENDPOINTS.caseLookups === null) rejectUnavailable("Case filter lookups");
+      const { data } = await apiFetch<CaseLookups>(ENDPOINTS.caseLookups, { signal });
       return data;
     },
   });

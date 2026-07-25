@@ -27,7 +27,7 @@ export function PlaceholderPage({
   summary,
 }: PlaceholderPageProps) {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
+    <div className="mx-auto min-h-0 w-full max-w-3xl flex-1 overflow-auto px-6 py-8">
       <p className="text-caption uppercase tracking-wide text-ink-faint">
         {reference}
       </p>

@@ -13,7 +13,7 @@
  * assembly only — every reusable part comes from `components/` and `design/`.
  */
 import { useMemo } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { useCase, useCaseInsights } from "@/api";
 import { InspectorPanel } from "@/components/inspector";
@@ -34,6 +34,7 @@ import {
   stationRef,
 } from "./caseEntities";
 import { ActivityTab } from "./tabs/ActivityTab";
+import { BoardTab } from "./tabs/BoardTab";
 import { EvidenceTab } from "./tabs/EvidenceTab";
 import { InsightsTab } from "./tabs/InsightsTab";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -41,6 +42,7 @@ import { TimelineTab } from "./tabs/TimelineTab";
 
 const TABS: TabItem[] = [
   { id: "overview", label: "Overview" },
+  { id: "board", label: "Board" },
   { id: "timeline", label: "Timeline" },
   { id: "insights", label: "Insights" },
   { id: "evidence", label: "Evidence" },
@@ -52,6 +54,7 @@ const DEFAULT_TAB = "overview";
 export default function CaseWorkspacePage() {
   const { id = "" } = useParams();
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const caseQuery = useCase(id);
   // Insights are also needed to resolve an inspector selection of kind "insight".
@@ -92,7 +95,7 @@ export default function CaseWorkspacePage() {
   const selectedId = resolved.ref?.id ?? null;
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex min-h-0 flex-1">
       <div className="flex min-w-0 flex-1 flex-col">
         <QueryBoundary
           query={caseQuery}
@@ -115,9 +118,20 @@ export default function CaseWorkspacePage() {
                 id={`case-panel-${activeTab}`}
                 role="tabpanel"
                 aria-labelledby={`case-${activeTab}`}
-                className="min-h-0 flex-1 overflow-auto p-6"
+                className={
+                  activeTab === "board"
+                    ? "relative isolate min-h-0 flex-1 overflow-hidden"
+                    : "min-h-0 flex-1 overflow-auto p-6"
+                }
               >
-                {activeTab === "timeline" ? (
+                {activeTab === "board" ? (
+                  <BoardTab
+                    caseId={id}
+                    onSelect={select}
+                    onOpen={(node) => node.href && navigate(node.href)}
+                    selectedId={selectedId}
+                  />
+                ) : activeTab === "timeline" ? (
                   <TimelineTab caseId={id} />
                 ) : activeTab === "insights" ? (
                   <InsightsTab caseId={id} onSelectInsight={(ref) => select(ref)} />

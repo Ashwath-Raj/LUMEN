@@ -23,6 +23,7 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { ApiError } from "@/api";
 import { EmptyState, ErrorState } from "@/design/primitives";
 
+import { DegradedState } from "./DegradedState";
 import { DelayedSkeleton } from "./DelayedSkeleton";
 import { StalenessBanner } from "./StalenessBanner";
 
@@ -37,6 +38,8 @@ interface QueryBoundaryProps<T> {
   isEmpty?: (data: T) => boolean;
   /** Skeleton line count while loading. */
   skeletonLines?: number;
+  /** Copy for the degraded state (unavailable/501 endpoint). */
+  degradedMessage?: string;
 }
 
 function defaultIsEmpty(data: unknown): boolean {
@@ -63,18 +66,29 @@ export function QueryBoundary<T>({
   emptyAction,
   isEmpty = defaultIsEmpty,
   skeletonLines = 3,
+  degradedMessage,
 }: QueryBoundaryProps<T>) {
   if (query.isPending) {
     return <DelayedSkeleton loading lines={skeletonLines} />;
   }
 
   if (query.isError) {
-    return (
-      <ErrorState
-        error={toApiError(query.error)}
-        onRetry={() => query.refetch()}
-      />
-    );
+    const error = toApiError(query.error);
+    // Unavailability (an unimplemented / temporarily-down endpoint) is an
+    // expected degraded state, not a failure — render the calm DegradedState,
+    // not the red ErrorState (Session-3 defect: 501 must not read as an error).
+    if (
+      error.code === "DEPENDENCY_UNAVAILABLE" ||
+      error.code === "DEGRADED_RESULT"
+    ) {
+      return (
+        <DegradedState
+          message={degradedMessage}
+          onRetry={error.retryable ? () => query.refetch() : undefined}
+        />
+      );
+    }
+    return <ErrorState error={error} onRetry={() => query.refetch()} />;
   }
 
   const data = query.data;
