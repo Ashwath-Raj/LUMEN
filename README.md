@@ -1,4 +1,4 @@
-# LUMEN — AI Crime Intelligence Platform
+# LUMEN — AI Crime Intelligence Platform (LUMEN-Linked-Urban-Mapping-Entities-Network)
 
 Karnataka State Police · Catalyst-native. Architecture frozen at v3 — see
 `docs/LUMEN_MASTER_SPEC_V3.md` for the single source of truth.
