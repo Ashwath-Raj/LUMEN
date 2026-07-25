@@ -1,61 +1,82 @@
 /** @type {import('tailwindcss').Config} */
 
-// Design tokens derived from the LUMEN Figma export:
-// a dark "fusion-center" tactical UI with a restrained gold accent,
-// status tags (critical/warning/success/info), and a serif+mono pairing
-// for dossier-style headings and data readouts.
+/*
+ * LUMEN Tailwind config — driven entirely by the design tokens in
+ * app/src/design/tokens/tokens.css (master spec §31.1 + arch §F). Every value
+ * here is `var(--token)`, so the CSS custom properties are the single source of
+ * truth and there is no second hard-coded palette (spec §31, §33 row-16:
+ * "Zero hard-coded colours"). The prototype's gold/serif theme is removed.
+ */
 export default {
   content: ['./index.html', './app/src/**/*.{js,jsx,ts,tsx}'],
-  darkMode: 'class',
+  darkMode: 'class', // dark is the only theme (§F); class kept for the root data-attr
   theme: {
     extend: {
       colors: {
-        surface: {
-          0: '#0A0A0B', // app background
-          1: '#131316', // panel background
-          2: '#1C1C20', // raised / hover surface
-          3: '#26262B', // popovers, dropdowns
-        },
-        border: {
-          subtle: '#2A2A2E',
-          strong: '#3A3A40',
-        },
+        void: 'var(--bg-void)',
+        panel: 'var(--bg-panel)',
+        raised: 'var(--bg-raised)',
+        line: 'var(--line)',
         ink: {
-          primary: '#F3F1EC',
-          secondary: '#B7B6B2',
-          muted: '#8B8B93',
-          disabled: '#5A5A60',
+          primary: 'var(--ink-primary)',
+          muted: 'var(--ink-muted)',
+          faint: 'var(--ink-faint)',
         },
-        accent: {
-          gold: '#C9A227',
-          goldMuted: '#8A7228',
-          goldSoft: 'rgba(201, 162, 39, 0.12)',
+        signal: 'var(--signal)',
+        risk: {
+          critical: 'var(--risk-critical)',
+          high: 'var(--risk-high)',
+          medium: 'var(--risk-medium)',
+          low: 'var(--risk-low)',
         },
-        status: {
-          critical: '#C0392B',
-          criticalSoft: 'rgba(192, 57, 43, 0.14)',
-          warning: '#D18F2A',
-          warningSoft: 'rgba(209, 143, 42, 0.14)',
-          success: '#3F8F5F',
-          successSoft: 'rgba(63, 143, 95, 0.14)',
-          info: '#3E7CB1',
-          infoSoft: 'rgba(62, 124, 177, 0.14)',
+        confidence: {
+          high: 'var(--confidence-high)',
+          med: 'var(--confidence-med)',
+          low: 'var(--confidence-low)',
         },
+        degraded: 'var(--state-degraded)',
       },
       fontFamily: {
-        display: ['"Fraunces"', 'Georgia', 'serif'],
-        sans: ['"Inter"', 'system-ui', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        display: 'var(--font-display)',
+        body: 'var(--font-body)',
+        mono: 'var(--font-mono)',
       },
-      letterSpacing: {
-        widest2: '0.18em',
+      fontSize: {
+        'page-title': ['var(--text-page-title)', 'var(--leading-page-title)'],
+        'panel-title': ['var(--text-panel-title)', 'var(--leading-panel-title)'],
+        body: ['var(--text-body)', 'var(--leading-body)'],
+        dense: ['var(--text-dense)', 'var(--leading-dense)'],
+        caption: ['var(--text-caption)', 'var(--leading-caption)'],
       },
-      boxShadow: {
-        panel: '0 1px 0 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+      spacing: {
+        1: 'var(--space-1)',
+        2: 'var(--space-2)',
+        3: 'var(--space-3)',
+        4: 'var(--space-4)',
+        6: 'var(--space-6)',
+        8: 'var(--space-8)',
       },
       borderRadius: {
-        sm: '4px',
-        md: '6px',
+        DEFAULT: 'var(--radius)',
+        sm: 'var(--radius)',
+        md: 'var(--radius)',
+      },
+      boxShadow: {
+        panel: 'var(--shadow-panel)',
+      },
+      transitionTimingFunction: {
+        ease: 'var(--motion-ease)',
+      },
+      transitionDuration: {
+        DEFAULT: 'var(--motion-duration)',
+      },
+      zIndex: {
+        rail: 'var(--z-rail)',
+        topbar: 'var(--z-topbar)',
+        inspector: 'var(--z-inspector)',
+        overlay: 'var(--z-overlay)',
+        tooltip: 'var(--z-tooltip)',
+        toast: 'var(--z-toast)',
       },
     },
   },

@@ -7,19 +7,21 @@
     <meta name="color-scheme" content="dark" />
     <title>LUMEN — Crime Intelligence Platform</title>
 
-    <!-- Type system: Fraunces (display/dossier headings), Inter (UI body), IBM Plex Mono (data/telemetry) -->
+    <!-- Type system (master spec §31.1): Space Grotesk (display), Inter (body), JetBrains Mono (identifiers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
-  <body class="bg-surface-0 text-ink-primary antialiased">
+  <body>
     <div id="root"></div>
-    <!-- Catalyst Web SDK — required for window.catalyst.auth (LUMEN_MASTER_SPEC_V3 §20.2, Catalyst Authentication) -->
+    <!-- Catalyst Web SDK — required for window.catalyst.auth (LUMEN_MASTER_SPEC_V3 §20.2, Catalyst Authentication).
+         Under plain Vite the /__catalyst/* paths 404 and the SDK stays an uninitialised husk;
+         authService.ts detects this (build-mode-first) and uses the dev mock session instead. -->
     <script src="https://static.zohocdn.com/catalyst/sdk/js/4.0.0/catalystWebSDK.js"></script>
     <script src="/__catalyst/sdk/init.js"></script>
-    <script type="module" src="/app/src/main.jsx"></script>
+    <script type="module" src="/app/src/main.tsx"></script>
   </body>
 </html>

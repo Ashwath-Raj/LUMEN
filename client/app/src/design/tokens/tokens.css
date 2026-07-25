@@ -1,0 +1,88 @@
+/*
+ * LUMEN design tokens — master spec §31.1 (verbatim) + frontend architecture §F.
+ *
+ * The single source of truth for every colour, space, type, radius, shadow and
+ * z-index in the product. Components reference these variables (directly or via
+ * Tailwind, which is configured from them) — never hard-coded values (spec §31,
+ * §33 row-16 done-when: "Zero hard-coded colours").
+ *
+ * The prototype's gold accent is intentionally REMOVED: the accent is
+ * `--signal` cyan (arch §F). Dark theme is the only theme (arch §F).
+ */
+
+:root {
+  /* ── §31.1 colour scale (verbatim) ───────────────────────────────────── */
+  --bg-void: #060d16;
+  --bg-panel: #0d1826;
+  --bg-raised: #14243a;
+  --line: #1e3350;
+
+  --ink-primary: #e6eef8;
+  --ink-muted: #8ca3bf;
+  --ink-faint: #55708f;
+
+  --signal: #35e0d4;          /* interactive OR live — never decorative (§31.2) */
+
+  --risk-critical: #ff5a5a;
+  --risk-high: #ff9548;
+  --risk-medium: #ffd166;
+  --risk-low: #4ade9b;
+
+  --confidence-high: #4ade9b;
+  --confidence-med: #ffd166;
+  --confidence-low: #8ca3bf;
+
+  --state-degraded: #ff9548;
+
+  /* ── §31.1 typography families (verbatim) ────────────────────────────── */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* ── §F type scale (extends §31.1) ───────────────────────────────────── */
+  --text-page-title: 24px;      --leading-page-title: 32px;    /* Display */
+  --text-panel-title: 18px;     --leading-panel-title: 26px;   /* Display */
+  --text-body: 14px;            --leading-body: 20px;          /* Inter default */
+  --text-dense: 13px;           --leading-dense: 18px;         /* dense grids */
+  --text-caption: 12px;         --leading-caption: 16px;       /* captions/badges — min 12px */
+  --font-weight-max: 600;       /* no weight above 600 (§F) */
+
+  /* ── §31.1 spacing (8px base) + §F allowed steps ─────────────────────── */
+  --space: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;              /* page gutter (§F) */
+  --space-8: 32px;
+
+  /* ── §F layout dimensions ────────────────────────────────────────────── */
+  --rail-width: 240px;
+  --workspace-left: 280px;
+  --workspace-right: 360px;
+  --inspector-overlay: 420px;
+  --inspector-docked: 380px;
+  --grid-row-dense: 36px;
+  --grid-row-comfortable: 44px;
+
+  /* ── §31.1 radius (verbatim — 4px everywhere; not rounded) ───────────── */
+  --radius: 4px;
+
+  /* ── §F elevation — two levels only (§31.2) ──────────────────────────── */
+  --shadow-none: none;         /* level 0: page surfaces, 1px --line, no shadow */
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 0.45);  /* level 1: floating panels only */
+
+  /* ── §F motion (functional; §30.10) ──────────────────────────────────── */
+  --motion-duration: 200ms;    /* 180–240 ms band */
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);  /* easeOut */
+  --motion-skeleton-delay: 300ms;                /* skeletons only after 300ms */
+
+  /* ── z-index scale (single source; ascending by stacking need) ───────── */
+  --z-base: 0;
+  --z-rail: 100;
+  --z-topbar: 200;
+  --z-inspector: 300;
+  --z-overlay: 400;            /* ⌘K palette, tray */
+  --z-tooltip: 500;
+  --z-toast: 600;
+}
