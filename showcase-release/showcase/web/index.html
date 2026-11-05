@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b111a" />
+  <meta name="description" content="LUMEN — AI-assisted crime intelligence platform showcase using synthetic data." />
+  <title>LUMEN · Intelligence Platform</title>
+  <link rel="icon" href="/assets/lumen.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="LUMEN home">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span class="brand-copy"><strong>LUMEN</strong><small>INTELLIGENCE SYSTEM</small></span>
+      </a>
+      <div class="workspace-label">WORKSPACE <span>DEMO ENVIRONMENT</span></div>
+      <nav class="nav-list" aria-label="Primary navigation">
+        <a href="#overview" class="nav-item active" data-route="overview"><i>◫</i><span>Command centre</span></a>
+        <a href="#cases" class="nav-item" data-route="cases"><i>▤</i><span>Case registry</span><b id="nav-case-count">80</b></a>
+        <a href="#network" class="nav-item" data-route="network"><i>⌘</i><span>Network intelligence</span></a>
+        <a href="#geospatial" class="nav-item" data-route="geospatial"><i>◎</i><span>Geospatial</span></a>
+        <a href="#intelligence" class="nav-item" data-route="intelligence"><i>✳</i><span>Insights & forecasts</span></a>
+        <a href="#assistant" class="nav-item" data-route="assistant"><i>✧</i><span>Intelligence assistant</span><span class="nav-dot"></span></a>
+      </nav>
+      <div class="nav-section-label">GOVERNANCE</div>
+      <nav class="nav-list">
+        <a href="#quality" class="nav-item" data-route="quality"><i>◈</i><span>Data quality & trust</span></a>
+        <a href="#audit" class="nav-item" data-route="audit"><i>▧</i><span>Audit activity</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="system-card"><div class="system-card-head"><span class="pulse"></span> LOCAL SYSTEM</div><strong>Demo instance online</strong><small>SQLite · synthetic dataset</small><div class="system-meter"><span></span></div><div class="system-meta"><span>API health</span><b>OPERATIONAL</b></div></div>
+        <div class="user-chip"><div class="avatar">LR</div><div><strong>Local Researcher</strong><small>Showcase access · no auth</small></div><span class="more">···</span></div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="topbar-left"><button class="mobile-menu" id="mobile-menu" aria-label="Open menu">☰</button><div class="crumb"><span>Workspace</span><b>/</b><strong id="page-crumb">Command centre</strong></div></div>
+        <div class="topbar-right"><div class="search-global"><span>⌕</span><input id="global-search" placeholder="Search cases, districts, entities…" aria-label="Search" /><kbd>↵</kbd></div><span class="top-separator"></span><span class="env-pill"><i></i> SHOWCASE</span><button class="icon-button" id="refresh" title="Refresh data">↻</button><div class="top-avatar">LR</div></div>
+      </header>
+      <section class="page-content" id="page-content" aria-live="polite">
+        <div class="loading-state"><div class="loader"></div><span>Initializing intelligence workspace…</span></div>
+      </section>
+      <footer class="footer"><span>© 2026 LUMEN · OPEN SHOWCASE BUILD</span><span><i class="pulse"></i> SYNTHETIC DATA MODE <b>·</b> NOT FOR OPERATIONAL USE</span></footer>
+    </main>
+  </div>
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+  <dialog class="modal" id="detail-modal"><form method="dialog"><button class="modal-close" aria-label="Close">×</button></form><div id="modal-content"></div></dialog>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>
